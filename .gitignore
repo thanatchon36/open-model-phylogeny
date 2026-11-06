@@ -1,7 +1,7 @@
 data/raw/*
 !data/raw/SHA256SUMS
 data/processed/
-figures/
+/figures/
 paper/*.aux
 paper/*.log
 paper/*.out
