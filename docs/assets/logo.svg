@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="t">
+  <title id="t">open-model-phylogeny</title>
+  <rect width="128" height="128" rx="28" fill="#0b1020"/>
+  <!-- date rings: radius is creation date, as in the radial chronogram -->
+  <circle cx="64" cy="64" r="24" fill="none" stroke="#2c3550" stroke-width="2"/>
+  <circle cx="64" cy="64" r="46" fill="none" stroke="#2c3550" stroke-width="2"/>
+  <!-- lineages: one root, branching outwards into fine-tunes, adapters, quantisations and merges -->
+  <g fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M64 64 L64 40 M64 40 L48 22 M64 40 L80 22" stroke="#a78bfa"/>
+    <path d="M64 64 L85 76 M85 76 L108 72 M85 76 L95 100" stroke="#38d6e8"/>
+    <path d="M64 64 L43 76 M43 76 L33 100 M43 76 L20 72" stroke="#ff9f5a"/>
+  </g>
+  <!-- a merge: a child with two parents from different branches -->
+  <path d="M95 100 Q64 118 33 100" fill="none" stroke="#ff5f8a" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- root and tips -->
+  <circle cx="64" cy="64" r="8" fill="#ffffff"/>
+  <g fill="#ffffff">
+    <circle cx="48" cy="22" r="4.5"/><circle cx="80" cy="22" r="4.5"/>
+    <circle cx="108" cy="72" r="4.5"/><circle cx="95" cy="100" r="4.5"/>
+    <circle cx="33" cy="100" r="4.5"/><circle cx="20" cy="72" r="4.5"/>
+  </g>
+</svg>
