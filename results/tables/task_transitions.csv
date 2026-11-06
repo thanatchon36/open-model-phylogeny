@@ -1,0 +1,147 @@
+src,dst,n
+Embeddings & ranking,Embeddings & ranking,12907
+Embeddings & ranking,Fill-mask,103
+Embeddings & ranking,Image & video generation,7
+Embeddings & ranking,Other,51
+Embeddings & ranking,Question answering,64
+Embeddings & ranking,Robotics & RL,10
+Embeddings & ranking,Speech & audio,1482
+Embeddings & ranking,Text classification,3030
+Embeddings & ranking,Text generation,168
+Embeddings & ranking,Token classification,717
+Embeddings & ranking,Translation & summarization,87
+Embeddings & ranking,Vision,26
+Embeddings & ranking,Vision-language,28
+Fill-mask,Embeddings & ranking,1878
+Fill-mask,Fill-mask,3806
+Fill-mask,Image & video generation,3
+Fill-mask,Other,391
+Fill-mask,Question answering,2819
+Fill-mask,Robotics & RL,7
+Fill-mask,Speech & audio,41
+Fill-mask,Text classification,35289
+Fill-mask,Text generation,159
+Fill-mask,Token classification,8760
+Fill-mask,Translation & summarization,47
+Fill-mask,Vision,13
+Fill-mask,Vision-language,57
+Image & video generation,Embeddings & ranking,23
+Image & video generation,Fill-mask,4
+Image & video generation,Image & video generation,78776
+Image & video generation,Other,339
+Image & video generation,Question answering,27
+Image & video generation,Robotics & RL,75
+Image & video generation,Speech & audio,39
+Image & video generation,Text classification,60
+Image & video generation,Text generation,53
+Image & video generation,Token classification,15
+Image & video generation,Translation & summarization,19
+Image & video generation,Vision,55
+Image & video generation,Vision-language,74
+Other,Embeddings & ranking,27
+Other,Image & video generation,347
+Other,Other,533
+Other,Speech & audio,2
+Other,Text classification,5
+Other,Text generation,5
+Other,Vision,1
+Other,Vision-language,11
+Question answering,Embeddings & ranking,6
+Question answering,Fill-mask,1
+Question answering,Other,2
+Question answering,Question answering,953
+Question answering,Robotics & RL,3
+Question answering,Text classification,42
+Question answering,Text generation,104
+Question answering,Token classification,2
+Question answering,Translation & summarization,24
+Question answering,Vision-language,6
+Robotics & RL,Embeddings & ranking,14
+Robotics & RL,Image & video generation,3
+Robotics & RL,Other,3
+Robotics & RL,Robotics & RL,11379
+Robotics & RL,Text generation,48
+Robotics & RL,Vision-language,10
+Speech & audio,Embeddings & ranking,60
+Speech & audio,Fill-mask,2
+Speech & audio,Image & video generation,31
+Speech & audio,Other,4
+Speech & audio,Question answering,17
+Speech & audio,Robotics & RL,3
+Speech & audio,Speech & audio,23550
+Speech & audio,Text classification,33
+Speech & audio,Text generation,475
+Speech & audio,Token classification,9
+Speech & audio,Translation & summarization,27
+Speech & audio,Vision,3
+Speech & audio,Vision-language,70
+Text classification,Embeddings & ranking,294
+Text classification,Fill-mask,17
+Text classification,Image & video generation,2
+Text classification,Other,26
+Text classification,Question answering,17
+Text classification,Robotics & RL,5
+Text classification,Speech & audio,3
+Text classification,Text classification,5113
+Text classification,Text generation,126
+Text classification,Token classification,81
+Text classification,Vision,5
+Text classification,Vision-language,36
+Text generation,Embeddings & ranking,961
+Text generation,Fill-mask,24
+Text generation,Image & video generation,175
+Text generation,Other,73
+Text generation,Question answering,936
+Text generation,Robotics & RL,983
+Text generation,Speech & audio,422
+Text generation,Text classification,2934
+Text generation,Text generation,197929
+Text generation,Token classification,331
+Text generation,Translation & summarization,777
+Text generation,Vision,33
+Text generation,Vision-language,2362
+Token classification,Embeddings & ranking,12
+Token classification,Fill-mask,9
+Token classification,Other,1
+Token classification,Question answering,4
+Token classification,Robotics & RL,1
+Token classification,Text classification,44
+Token classification,Token classification,2479
+Translation & summarization,Embeddings & ranking,35
+Translation & summarization,Fill-mask,1
+Translation & summarization,Image & video generation,2
+Translation & summarization,Other,5
+Translation & summarization,Question answering,44
+Translation & summarization,Robotics & RL,2
+Translation & summarization,Speech & audio,13
+Translation & summarization,Text classification,247
+Translation & summarization,Text generation,328
+Translation & summarization,Token classification,8
+Translation & summarization,Translation & summarization,8220
+Translation & summarization,Vision,1
+Translation & summarization,Vision-language,6
+Vision,Embeddings & ranking,1280
+Vision,Fill-mask,6
+Vision,Image & video generation,57
+Vision,Other,12
+Vision,Question answering,3
+Vision,Robotics & RL,56
+Vision,Speech & audio,14
+Vision,Text classification,23
+Vision,Text generation,4
+Vision,Token classification,1
+Vision,Vision,19252
+Vision,Vision-language,237
+Vision-language,Embeddings & ranking,390
+Vision-language,Fill-mask,6
+Vision-language,Image & video generation,171
+Vision-language,Other,129
+Vision-language,Question answering,108
+Vision-language,Robotics & RL,1078
+Vision-language,Speech & audio,183
+Vision-language,Text classification,914
+Vision-language,Text generation,16811
+Vision-language,Token classification,69
+Vision-language,Translation & summarization,245
+Vision-language,Vision,262
+Vision-language,Vision-language,29497

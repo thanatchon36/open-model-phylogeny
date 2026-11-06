@@ -1,0 +1,39 @@
+{
+  "duplicate_node_rows_dropped": 1,
+  "n_models_hub": 3213043,
+  "n_edges_raw": 952659,
+  "edges_by_relation_raw": {
+    "finetune": 367097,
+    "adapter": 338239,
+    "quantized": 198649,
+    "merge": 48635,
+    "unknown": 39
+  },
+  "backfill_date": "2022-03-02",
+  "backfill_date_n": 29557,
+  "edges_child_unresolved": 0,
+  "parents_rescued_case_insensitive": 2304,
+  "ghost_parents": 3969,
+  "n_connected": 965292,
+  "n_edges": 952659,
+  "cycle_nodes_initial": 110,
+  "cycle_edges_removed": 13,
+  "primary_changed_vs_first_listed": 8543,
+  "roots": 45849,
+  "roots_without_family_key": 2,
+  "n_multi_parent": 15208,
+  "n_children": 919442,
+  "n_parents": 90673,
+  "n_leaves": 874618,
+  "edges_by_relation": {
+    "finetune": 367086,
+    "adapter": 338239,
+    "quantized": 198649,
+    "merge": 48633,
+    "unknown": 39
+  },
+  "max_depth_primary": 39,
+  "max_depth_longest": 151,
+  "max_hybrid_depth": 142,
+  "build_seconds": 13.7
+}

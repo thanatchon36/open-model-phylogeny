@@ -1,0 +1,231 @@
+\documentclass[10pt,twocolumn]{article}
+\usepackage[letterpaper,margin=0.72in,columnsep=0.26in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{xspace}
+\usepackage{caption}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[hidelinks]{hyperref}
+\captionsetup{font=small,labelfont=bf}
+\setlength{\textfloatsep}{12pt plus 2pt minus 2pt}
+\input{macros}
+\newcommand{\todocite}[1]{\textcolor{orange!75!black}{[CITE:~#1]}}
+\newcommand{\RQ}[1]{\textbf{RQ#1}}
+
+\title{\Large\bfseries Phylogenetics of Open Models:\\ Structure, Hybridisation, Tempo and Speciation\\ in the Hugging Face Lineage Graph}
+\author{[Author name(s)]\\{\small [Affiliation $\cdot$ e-mail]}\\[2pt]{\small\itshape Working draft, 6 November 2026}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Hugging Face hosts \nModelsHub public models, and \pctDeclare of them now declare a parent: they are fine-tunes, adapters, quantisations or merges of other models. These declarations turn the Hub into a population whose genealogy can be read. We reconstruct the complete lineage graph from a snapshot taken on 5 November 2026 (\nConnected connected models, \nEdges parent--child links) and study it with concepts borrowed from phylogenetics. Lineage is extremely concentrated: the top 1\% of roots (\nTopOnePctRoots models) account for \pctTopOnePctRoots of all connected models, family sizes are heavy-tailed (power-law exponent $\alpha=\plAlpha$), and \pctLeaves of derivatives never acquire offspring. Merging is strongly assortative: \pctRelated of the parent pairs of merged models share a declared ancestor, against \pctNullRelated when parents are randomly re-paired. The derivative economy keeps accelerating: for heavily reused bases, the median time to the first fine-tune fell from \rtFinetuneEarly days (bases released in the second half of 2023) to \rtFinetuneLate days (first half of 2026). Reproduction and attention are both skewed: the top 1\% of uploaders produce \pctTopUploaders of all derivatives, and the top 1\% of derivatives receive \pctTopDownloads of their downloads. Finally, \pctSpeciation of parent--child links cross a task boundary, a form of speciation dominated by masked-language encoders that become classifiers. We release a reproducible pipeline and a visual atlas of the Hub's family tree.
+\end{abstract}
+
+\section{Introduction}
+Open-weight models are rarely used exactly as released. Soon after a base model is published, the community uploads fine-tuned variants, parameter-efficient adapters, quantised builds for consumer hardware, and merges that blend several models into one. On the Hugging Face Hub these derivatives can declare where they come from: a model card may name one or more base models and the kind of relation, and the Hub turns that metadata into a navigable model tree \todocite{Hugging Face Hub documentation of the \texttt{base\_model} field}. Aggregated over the whole Hub, these declarations form a genealogy of open models.
+
+This paper reads that genealogy the way a biologist reads a phylogeny. Bases are roots, derivatives are descendants, merges are hybrids with several parents, and a derivative that changes its task is a speciation event. The analogy is imperfect, since models do not compete for resources and copying is free, but it gives precise vocabulary for questions that matter to platform operators, model developers and researchers who audit the supply chain of machine-learning artefacts \todocite{studies of pre-trained model reuse and supply chains on Hugging Face}. We ask five questions:
+
+\begin{itemize}\setlength{\itemsep}{1pt}
+\item \RQ1 \emph{Structure}: how large, deep and concentrated are model families?
+\item \RQ2 \emph{Hybridisation}: do merges combine relatives or unrelated lineages?
+\item \RQ3 \emph{Tempo}: how quickly do derivatives appear, and is the ecosystem speeding up?
+\item \RQ4 \emph{Attention}: how are downloads distributed across descendants, and which derivatives stay in use?
+\item \RQ5 \emph{Speciation}: how often does a derivative change its task, and along which routes?
+\end{itemize}
+
+Our original design also targeted license drift, that is, whether derivatives keep the obligations attached to their ancestors' licenses. The snapshot available in our analysis environment carries no license metadata, so we report the analyses the data support and describe the license extension as future work (Section~\ref{sec:ethics}).
+
+\paragraph{Contributions.} (C1) A reproducible pipeline that turns declared ancestry into a cleaned lineage DAG, with explicit rules for ghosts, cycles and multi-parent merges. (C2) A phylogenetic characterisation of the whole Hub. (C3) A kinship analysis of model merging against a permutation null model. (C4) Measurements of the tempo of derivative production. (C5) An analysis of task speciation. (C6) A visual atlas, led by the radial chronogram in Figure~\ref{fig:hero}.
+
+\section{Background and related work}
+\paragraph{Lineage metadata.} Model cards on the Hub carry YAML metadata. The \texttt{base\_model} field lists parent repositories, and each link is labelled as \emph{finetune}, \emph{adapter}, \emph{quantized} or \emph{merge}, either by the author or by the Hub; older cards express the same information through \texttt{base\_model:} tags. Declarations are voluntary, so any graph built from them is a lower bound on actual reuse.
+
+\paragraph{Empirical studies of model ecosystems.} Prior work has measured reuse, documentation and dependencies on model hubs \todocite{empirical studies of pre-trained model reuse on Hugging Face}, mapped families of fine-tuned models \todocite{model atlas and family-tree studies of the Hub}, and examined licensing across the machine-learning supply chain \todocite{license compliance studies of ML models and datasets}. We complement these with a whole-Hub, time-resolved analysis that treats merges, timing and task change explicitly.
+
+\paragraph{Methods and visualisation.} We test heavy tails following \citet{clauset2009} with the \texttt{powerlaw} package \citep{alstott2014}. The radial chronogram adapts the radial tree links popularised by D3 \citep{bostock2011} and bundles hybrid links through common ancestors in the spirit of hierarchical edge bundling \citep{holten2006}; the streamgraph follows \citet{byron2008}. Layouts use igraph \citep{csardi2006}; statistics use statsmodels \citep{seabold2010} and NumPy \citep{harris2020}.
+
+\section{Data}\label{sec:data}
+We use the Open Model Family Tree \citep{h9tec2026}, a nightly rebuild of the Hub's declared ancestry from the public \texttt{hub-stats} dump of the \texttt{/api/models} endpoint \citep{hubstats}. Its \texttt{data-latest} release (snapshot of 5 November 2026; data licensed CC BY 4.0) provides a node table with one row per public model (identifier, author, creation and modification time, downloads over the last 30 days and all time, likes, pipeline tag and library) and an edge table of \nRawEdges child--parent links labelled by relation. Our analysis environment could not reach the Hub directly, so this third-party snapshot is our sole source (Section~\ref{sec:threats}).
+
+\paragraph{Cleaning.} We dropped \nDupRows duplicated node row and matched \nRescued parent identifiers that differed only in letter case. We kept \nGhost parents that no longer resolve to a public model as \emph{ghost} nodes (deleted, private or renamed bases). Cycles can only arise from mis-declared metadata; they involved \nCycleNodes nodes, and we broke them by removing \nCycleEdges edges, first those whose child is older than its parent, then the incoming residual edges of the oldest node. The Hub assigns a single creation date (\backfillDate) to every repository created before it recorded dates. \nBackfill models carry it, and we treat it as left-censored in all timing analyses.
+
+\paragraph{Resulting graph.} \nConnected models (\pctConnected of the Hub) declare a parent or have a child; they are joined by \nEdges edges, and \nChildren of them declare at least one parent. Of these derivatives, \pctFinetune are fine-tunes, \pctAdapter adapters, \pctQuantized quantisations and \pctMerge merges. The graph involves \nAuthors distinct accounts.
+
+\begin{figure*}[p]
+\centering
+\includegraphics[width=\textwidth]{figs/f1.jpg}
+\caption{\textbf{The Tree of Open Models.} Every Hugging Face model that declares a parent or has a child (\nConnected models). Radius encodes the creation date, from the inner ring (early 2022) to the rim (5 November 2026); dashed rings mark 1 January of each year. Angle encodes lineage: each super-family occupies a wedge, each root's descendants occupy an interval proportional to their number, and children are placed in birth order, so a base's offspring sweep around it as they appear. Curves follow the primary tree; pale bundled curves are the \nHybrids multi-parent merges, routed through the parents' common ancestor. Stars mark the most-descended bases; point brightness scales with all-time downloads. The bright ``sails'' are single bases with very large broods of offspring created in short bursts.}
+\label{fig:hero}
+\end{figure*}
+
+\section{Lineage graph construction}\label{sec:graph}
+\begin{itemize}\setlength{\itemsep}{1pt}
+\item A \emph{root} is a model with descendants but no declared parent; there are \nRoots.
+\item Every non-root has a \emph{primary parent}: its only parent or, for a multi-parent model, the parent with the largest lineage (ties broken by age). This rule differs from the first-listed parent for \nPrimaryChanged models. Primary parents define a spanning forest, the \emph{primary tree}; all other links are \emph{hybridisation} edges.
+\item A model's \emph{generation} is its depth in the primary tree. Its \emph{hybrid depth} is the largest number of multi-parent events on any path from a root.
+\item A \emph{family} is the set of models below one root in the primary tree. For reporting we also use the upstream series keys (\nFamilies keys, such as \texttt{qwen2.5} or \texttt{llama-3.1}) grouped into twelve \emph{super-families} (Qwen, Llama, Gemma, Mistral, FLUX, Stable Diffusion, BERT family, Whisper, SmolLM, DeepSeek, Phi and T5) plus a long tail.
+\end{itemize}
+
+\section{Methods}\label{sec:methods}
+\paragraph{Structure (\RQ1).} Family size is the number of models in a root's primary subtree, root included. We fit a discrete power law above an $x_{\min}$ chosen by Kolmogorov--Smirnov minimisation and compare it with lognormal and exponential alternatives by normalised log-likelihood ratios $R$, where $R>0$ favours the power law \citep{clauset2009,alstott2014}. Concentration is summarised by the Gini coefficient and top shares.
+
+\paragraph{Hybridisation (\RQ2).} For every multi-parent model, each pair of its parents is classified by declared ancestry as a \emph{backcross} (one parent descends from the other), \emph{siblings} (they share a direct parent), \emph{cousins} (they share a more distant ancestor) or an \emph{outcross} (no shared ancestor). The null model re-pairs parents at random 100 times, shuffling them across merged models while preserving each model's number of parents and each parent's frequency.
+
+\paragraph{Tempo (\RQ3).} The lag of an edge is the child's creation time minus the parent's. We exclude ghost and backfilled endpoints and negative lags (\pctNegLag of the \nLagEdges eligible edges). A base's \emph{reaction time} for a relation is the lag of its first child of that kind; we compute it for the \nMajorBases bases with at least 100 direct children released between 1 January 2023 and six months before the snapshot, and test cohort trends with Spearman's $\rho$. Because declaring a base became common only gradually, we repeat the test for bases released from 2024 onwards.
+
+\paragraph{Attention (\RQ4).} A derivative is \emph{active} if it was downloaded at least once in the 30 days before the snapshot. A logistic regression relates activity to relation type, generation, having several parents, uploader size and age (both $\log_{10}$), with super-family indicators and standard errors clustered by family key.
+
+\paragraph{Speciation (\RQ5).} Pipeline tags are mapped to twelve task groups (for example text generation, vision--language, text classification, fill-mask, embeddings and ranking, image and video generation). An edge \emph{speciates} when parent and child fall in different groups; we use the \nTaskEdges edges where both tags are known.
+
+\paragraph{Uncertainty and robustness.} Confidence intervals for proportions come from a cluster bootstrap with families as clusters (500 replicates) \citep{efron1993}. We re-run headline metrics under an alternative primary-parent rule, without quantised models, without the top 1\% of uploaders, and on the last 24 months only.
+
+\paragraph{Visualisation.} The radial chronogram (Figure~\ref{fig:hero}) places each model at an angle given by a birth-ordered depth-first layout of its family and at a radius given by its creation date; links are cubic curves that leave and enter radially. Hybrid links are bundled through the position of the parents' most recent common ancestor. A custom additive rasteriser draws all \nEdges links with luminous blending. The coral view (Figure~\ref{fig:coral}) lays out the skeleton of models that have children with a force-directed algorithm and arranges childless offspring around their parent on sunflower discs.
+
+\section{Results}
+\subsection{Structure (\RQ1)}
+Lineage is concentrated in a few giant families. \pctRootsSmall of roots have families of at most three models, yet the top 1\% of roots (\nTopOnePctRoots) hold \pctTopOnePctRoots of all connected models and the ten largest alone hold \pctTopTenRoots. The Gini coefficient of family sizes is \giniFamily, and the largest single-root family has \familyMax models. The tail is heavy: a power law with $\alpha=\plAlpha$ fits sizes above $x_{\min}=\plXmin$ (\plNtail roots) and is strongly preferred to an exponential ($R=\plExR$, $p$\,\plExP), but cannot be distinguished from a lognormal ($R=\plLnR$, $p=\plLnP$; Figure~\ref{fig:stats}a). By named lineage, the Qwen super-family alone contains \nQwenSuper models (\pctQwenSuper of the graph), and the ten largest family keys hold \pctTopTenKeys.
+
+The tree is shallow and bushy. \pctDepthOne of derivatives are direct children of a root and only \pctDepthThree sit three or more generations deep; the 99th percentile is \depthPnn generations and the maximum is \depthMax in the primary tree, or \ldepthMax along the longest path through merges. The median parent has \outdegMedian children, while the most prolific has \outdegMax. Overall \pctLeaves of derivatives are leaves, but fertility depends sharply on the relation: \pctLeafAdapter of adapters and \pctLeafQuantized of quantisations never have children, against \pctLeafFinetune of fine-tunes and only \pctLeafMerge of merges. Merges are the ecosystem's breeding stock. Table~\ref{tab:gen} shows that adapters dominate the first generation, while fine-tunes and quantisations dominate later ones. Finally, \nUnderGhost models (\pctUnderGhost) descend from ghost roots, lineages whose founder is no longer public.
+
+\begin{table}[t]
+\centering\small
+\caption{Relation of each derivative to its primary parent, by generation.}
+\label{tab:gen}
+\resizebox{\columnwidth}{!}{\input{tab_generation}}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figs/f2.jpg}
+\caption{\textbf{A family as a coral: Qwen2.5} (\nQwenTwoFive models). The force-directed skeleton holds every model that has children; childless offspring bloom around their parent on sunflower discs, ordered by relation (colour) and birth. Bright hubs are the base and instruct checkpoints with the most direct children.}
+\label{fig:coral}
+\end{figure}
+
+\subsection{Hybridisation (\RQ2)}
+\nHybrids models declare two or more parents, including \pctMergeMulti of those labelled as merges. Most hybrids have two parents (\pctTwoParents), but one lists \maxParents. Across \nPairs parent pairs, \pctBackcross are backcrosses, \pctSibling siblings and \pctCousin cousins, while \pctOutcross share no declared ancestor (95\% CI \outcrossLo--\outcrossHi). Under random re-pairing only \pctNullRelated of pairs are related, so merges join relatives \assortRatio times more often than chance (permutation $p\le\permP$; Figure~\ref{fig:hybrid}). Family keys tell the same story: \pctCrossFamily of observed pairs cross family keys, against \pctNullCross under the null, and \pctCrossSuper cross super-families.
+
+Merging also builds the deepest lineages. One chain reaches \hybDepthMax successive merges. Of the \nDeepHybrid models that sit at least ten merges deep, \pctDeepTopAuthor come from a single account (\nDeepAuthors accounts in total), the signature of automated, evolutionary merging pipelines. The largest ancestor set of a merged model contains \ancMax models.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{figs/f5.jpg}
+\caption{\textbf{Model merging is assortative.} Left: the families most involved in merges; curves join the families of two parents of the same merged model, bundled through their super-family hubs. Right: kinship of the \nPairs parent pairs compared with 100 random re-pairings.}
+\label{fig:hybrid}
+\end{figure*}
+
+\subsection{Tempo (\RQ3)}
+Derivative production exploded after 2023 (Figure~\ref{fig:stream}). The graph gained \birthsTwentyThree derivatives in 2023, \birthsTwentyFour in 2024, \birthsTwentyFive in 2025 and \birthsTwentySix in the first ten months of 2026. The busiest month, \birthsPeakMonth, added \birthsPeakCount derivatives, led by the \peakSuper super-family; no single account contributed more than \pctPeakTopUploader of them.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figs/f4.jpg}
+\caption{\textbf{The Cambrian explosion of open-model derivatives.} Monthly births of models that declare a parent, by super-family (3-month moving average, streamgraph layout).}
+\label{fig:stream}
+\end{figure*}
+
+Quantisations follow their parent fastest: the median lag is \lagQuantized days, \pctQuantDay arrive within a day, \pctQuantWeek within a week and \pctQuantMonth within a month. Merges follow with a median of \lagMerge days (\pctMergeMonth within a month). Fine-tunes (\lagFinetune days) and adapters (\lagAdapter days) have long lags because popular bases keep attracting derivatives for years (Figure~\ref{fig:stats}b).
+
+For the \nMajorBases heavily reused bases, the median reaction time is \rtQuantAll days for the first quantisation, \rtFinetuneAll for the first fine-tune, \rtAdapterAll for the first adapter and \rtMergeAll for the first merge. Reaction keeps getting faster (Table~\ref{tab:reaction}, Figure~\ref{fig:stats}c). The median time to the first fine-tune fell from \rtFinetuneEarly days for bases released in the second half of 2023 to \rtFinetuneLate days in the first half of 2026; for quantisations it fell from \rtQuantEarly to \rtQuantLate days, and for adapters from \rtAdapterEarly to \rtAdapterLate. Release date and reaction time are negatively correlated for fine-tunes ($\rho=\rhoFinetuneAll$; $\rho=\rhoFinetune$ for the \nRhoFinetune bases released from 2024), quantisations ($\rho=\rhoQuantAll$; $\rho=\rhoQuant$ for \nRhoQuant bases from 2024) and adapters ($\rho=\rhoAdapter$ from 2024), but not for merges ($\rho=\rhoMerge$, $p=\pRhoMerge$).
+
+\begin{table}[t]
+\centering\small
+\caption{Median days from a base's release to its first child of each kind, by release cohort (bases with at least 100 direct children).}
+\label{tab:reaction}
+\resizebox{\columnwidth}{!}{\input{tab_reaction}}
+\end{table}
+
+Fast reaction does not mean short attention. For the \nDecayBases bases older than a year, the median share of first-year children born in the first 30 days is only \pctFirstMonth, and half of a base's first-year children typically arrive after \halfLife days. Production is also concentrated among uploaders: of \nUploaders accounts, the top ten produce \pctTopTenUploaders of all derivatives, the top hundred \pctTopHundredUploaders and the top 1\% (\nTopUploaders accounts) \pctTopUploaders, a Gini coefficient of \giniUploaders.
+
+\subsection{Attention (\RQ4)}
+Downloads are even more concentrated than reproduction. Derivatives have accumulated \totalChildDownloads downloads, \pctTopDownloads of them by the top 1\% of derivatives (Gini \giniDownloads). Median all-time downloads are \dlQuantized for quantisations, \dlMerge for merges, \dlFinetune for fine-tunes and \dlAdapter for adapters. \pctDormant of derivatives had no download in the last 30 days (95\% CI \dormantLo--\dormantHi) and \pctZeroAll were never downloaded. Dormancy reaches \pctDormantFinetune among fine-tunes, against \pctDormantAdapter for adapters, \pctDormantQuantized for quantisations and \pctDormantMerge for merges.
+
+The regression (n\,=\,\nLogit, pseudo-$R^2$\,=\,\pseudoRsq; Figure~\ref{fig:stats}d) confirms the ranking. Relative to fine-tunes, the odds of being active are \orQuant times higher for quantisations (95\% CI \orQuantLo--\orQuantHi), \orAdapter for adapters and \orMerge for merges. They fall with generation (\orGenTwo for generation two, \orGenThree for three or more) and rise with uploader size (\orAuthor per tenfold) and age (\orAge per tenfold); having several parents has no clear effect (\orHybrid, CI \orHybridLo--\orHybridHi).
+
+Within the \nBigFamilies families with at least 50 descendants, descendants collect a median \pctDescShare of the family's downloads, and in \pctOutgrow of families at least one child out-downloads its root. Reproduction and use are related but not aligned: the rank correlation between a parent's number of children and its downloads is \rhoKids among \nRhoKids parents with at least ten children, and \pctAdapterDominated of the \nBasesHundred bases with at least 100 children owe 90\% or more of them to adapters, typically tutorial defaults rather than widely used models.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.96\textwidth]{figs/f6.jpg}
+\caption{\textbf{Statistics.} (a) Complementary CDF of family sizes with the fitted power law. (b) Cumulative distribution of the parent-to-child lag by relation. (c) Median reaction time by release cohort with interquartile ranges. (d) Odds ratios of being downloaded in the last 30 days (super-family indicators omitted from the plot).}
+\label{fig:stats}
+\end{figure*}
+
+\subsection{Speciation (\RQ5)}
+Of the \nTaskEdges edges whose two endpoints have a known task, \pctSpeciation cross a task group (95\% CI \specLo--\specHi), and \pctPipelineChange change the exact pipeline tag (Figure~\ref{fig:chord}). Fine-tunes speciate most (\pctSpecFinetune), followed by quantisations (\pctSpecQuantized) and adapters (\pctSpecAdapter); merges rarely do (\pctSpecMerge). The single largest route is fill-mask to text classification (\nFillMaskClass edges, \pctTopTransition of all pipeline changes), followed by vision--language to text generation (\nVlmText) and fill-mask to token classification (\nFillMaskToken). By parent task, \pctSpecFillMask of edges from fill-mask models change task and \pctSpecEmbed from embedding and ranking models, against \pctSpecTextGen for text generation and \pctSpecImageGen for image and video generation: generative lineages rarely speciate. Formats migrate too: \pctLibChange of the \nQuantLib quantised edges with known libraries change library, led by Transformers to MLX (\nToMlx) and to GGUF (\nToGguf).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figs/f3.jpg}
+\caption{\textbf{Speciation.} Task changes along parent--child edges; ribbons leave the parent's task and land on the child's, with width proportional to the number of edges.}
+\label{fig:chord}
+\end{figure}
+
+\subsection{Robustness}
+Table~\ref{tab:robust} repeats five headline metrics under four alternative specifications. Concentration, speciation and dormancy keep their magnitude and direction in every case, and the conclusions above do not depend on the primary-parent rule.
+
+\begin{table}[t]
+\centering\small
+\caption{Headline metrics under alternative specifications: Gini and top-10 share of family sizes, speciation rate, median fine-tune lag (days) and dormant share.}
+\label{tab:robust}
+\resizebox{\columnwidth}{!}{\input{tab_robustness}}
+\end{table}
+
+\section{Discussion}
+\paragraph{A few bases carry the ecosystem.} With \pctTopOnePctRoots of all connected models below the top 1\% of roots, an evaluation, audit or safety fix applied to a handful of bases reaches most of the Hub's derivatives, and a defect in one of them propagates just as far. Lineage metadata is what makes such propagation traceable.
+
+\paragraph{Derivatives arrive in days.} Fine-tunes and quantisations of a major release now appear within days, faster every half-year. Release processes, evaluations and responsible-use guidance should assume that derivatives exist almost immediately; quantisers have become distribution infrastructure, and their builds are the most used derivatives of all.
+
+\paragraph{Merging is in-breeding and increasingly automated.} Merges overwhelmingly combine relatives, and automated pipelines produce chains up to \hybDepthMax merges deep. Such chains make provenance hard to reason about without tooling, and they are where license and safety obligations are most likely to be lost.
+
+\paragraph{Speciation follows architecture.} Encoders are starting points that are almost always re-purposed, while generative models are mostly specialised within their task. Vision--language bases routinely give rise to text-only descendants.
+
+\paragraph{Implications for platforms.} Platforms could validate declarations at upload (cycles, children older than their parents), surface ghost parents, rank search results with lineage-aware signals, and propagate notices such as deprecations or vulnerability reports down a lineage.
+
+\section{Threats to validity}\label{sec:threats}
+\paragraph{Construct.} We observe declared ancestry only: \pctDeclare of models declare a parent, so all counts are lower bounds, and relation labels may be inferred or wrong. Family keys rely on a naming heuristic. Download counts follow the Hub's counting conventions and include automated traffic.
+\paragraph{Internal.} Creation time is not release time, pre-2022 dates are backfilled, and \pctNegLag of lags are negative. The acceleration of reaction times could partly reflect the adoption of declarations; restricting the test to bases released from 2024 onwards preserves the trend.
+\paragraph{External.} We study one platform at one point in time through a third-party rebuild of its metadata; our reconstruction applies its own cleaning rules and may differ slightly from the upstream summaries.
+
+\section{Ethics, limitations and future work}\label{sec:ethics}
+We use public metadata only, report individual accounts anonymously, and make no judgement about the legality of any model. The main limitation is the missing license metadata, which prevented the license-drift analysis of our original design. That analysis would map each declared license to a class (permissive, copyleft, use-restricted, vendor-specific, non-commercial, no-derivatives) whose obligations flow down the lineage; a derivative is inconsistent when its declared license drops an inherited obligation, and inconsistencies can be split into those introduced at an edge and those inherited from an inconsistent parent. The lineage graph, primary tree and propagation code are in place; only per-model license tags, available from the Hub's model metadata, are needed.
+
+\section{Conclusion}
+The Hugging Face Hub has grown a family tree of \nConnected connected models. It is dominated by a few giant lineages, reproduces fastest through quantisation, hybridises mostly within families, and speciates mainly where encoders become task models. Reading the Hub as a phylogeny turns scattered metadata into a map of how open models actually spread.
+
+\paragraph{Data and code availability.} The analysis pipeline, derived tables and figure scripts accompany this draft. The lineage data are from the Open Model Family Tree \citep{h9tec2026} under CC BY 4.0, derived from Hub metadata via \texttt{hub-stats} \citep{hubstats}.
+
+\paragraph{Acknowledgements.} The data pipeline, figures and first draft of this paper were produced with the assistance of Claude (Anthropic), an AI system, under the direction of the author(s), who are responsible for verifying all content.
+
+\small
+\begin{thebibliography}{99}\setlength{\itemsep}{1pt}
+\bibitem[Alstott et~al.(2014)]{alstott2014} J.~Alstott, E.~Bullmore and D.~Plenz. powerlaw: a Python package for analysis of heavy-tailed distributions. \emph{PLoS ONE}, 9(1):e85777, 2014.
+\bibitem[Bostock et~al.(2011)]{bostock2011} M.~Bostock, V.~Ogievetsky and J.~Heer. D$^3$: Data-driven documents. \emph{IEEE Transactions on Visualization and Computer Graphics}, 17(12):2301--2309, 2011.
+\bibitem[Byron and Wattenberg(2008)]{byron2008} L.~Byron and M.~Wattenberg. Stacked graphs: geometry \& aesthetics. \emph{IEEE Transactions on Visualization and Computer Graphics}, 14(6):1245--1252, 2008.
+\bibitem[Clauset et~al.(2009)]{clauset2009} A.~Clauset, C.~R.~Shalizi and M.~E.~J.~Newman. Power-law distributions in empirical data. \emph{SIAM Review}, 51(4):661--703, 2009.
+\bibitem[Cs\'ardi and Nepusz(2006)]{csardi2006} G.~Cs\'ardi and T.~Nepusz. The igraph software package for complex network research. \emph{InterJournal, Complex Systems}, 1695, 2006.
+\bibitem[Efron and Tibshirani(1993)]{efron1993} B.~Efron and R.~J.~Tibshirani. \emph{An Introduction to the Bootstrap}. Chapman \& Hall, 1993.
+\bibitem[cfahlgren1(2026)]{hubstats} cfahlgren1. \texttt{hub-stats}: daily dumps of Hugging Face Hub metadata. Dataset \texttt{cfahlgren1/hub-stats} on the Hugging Face Hub (Apache-2.0), as referenced by \citep{h9tec2026}.
+\bibitem[Harris et~al.(2020)]{harris2020} C.~R.~Harris et~al. Array programming with NumPy. \emph{Nature}, 585:357--362, 2020.
+\bibitem[h9-tec(2026)]{h9tec2026} h9-tec. Open Model Family Tree. GitHub repository \url{https://github.com/h9-tec/model-family-tree}, release \texttt{data-latest} (snapshot 2026-11-05, accessed 6 November 2026). Data CC BY 4.0.
+\bibitem[Holten(2006)]{holten2006} D.~Holten. Hierarchical edge bundles: visualization of adjacency relations in hierarchical data. \emph{IEEE Transactions on Visualization and Computer Graphics}, 12(5):741--748, 2006.
+\bibitem[Seabold and Perktold(2010)]{seabold2010} S.~Seabold and J.~Perktold. statsmodels: Econometric and statistical modeling with Python. In \emph{Proceedings of the 9th Python in Science Conference}, 2010.
+\end{thebibliography}
+
+\onecolumn
+\appendix
+\section{References to find}
+Bracketed \textcolor{orange!75!black}{[CITE]} markers are placeholders for related work that must be located and verified before submission. Suggested searches: Hugging Face Hub documentation on \texttt{base\_model} and model trees; empirical studies of pre-trained model reuse, documentation and supply chains on Hugging Face; ``model atlas'' and family-tree analyses of the Hub; license compliance and license inconsistency in machine-learning models and datasets.
+
+\section{Numbers ledger}
+Every number in the text is a macro generated from \texttt{results/results.json} by \texttt{src/make\_macros.py}; Tables~\ref{tab:gen}--\ref{tab:robust} are generated from the same file.
+{\footnotesize\input{ledger}}
+\end{document}

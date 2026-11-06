@@ -1,0 +1,11 @@
+data/raw/*
+!data/raw/SHA256SUMS
+data/processed/
+figures/
+paper/*.aux
+paper/*.log
+paper/*.out
+__pycache__/
+*.pyc
+.DS_Store
+.venv/
