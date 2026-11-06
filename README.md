@@ -8,15 +8,17 @@ Thanatchon Chongmankhong · Working draft, November 2026</p>
 ![Status](https://img.shields.io/badge/status-working%20draft-orange)
 ![Python](https://img.shields.io/badge/python-3.12-blue)
 ![Snapshot](https://img.shields.io/badge/snapshot-2026--11--05-lightgrey)
+[![Paper: read online](https://img.shields.io/badge/paper-read%20online-b2182b)](https://thanatchon36.github.io/open-model-phylogeny/paper/)
 [![PDF](https://img.shields.io/badge/paper-PDF-b2182b)](https://github.com/thanatchon36/open-model-phylogeny/raw/main/paper/paper.pdf)
-[![Data](https://img.shields.io/badge/data-CC%20BY%204.0-ffcc4d)](https://github.com/h9-tec/model-family-tree)
+[![Data](https://img.shields.io/badge/data-Hugging%20Face-ffcc4d)](https://huggingface.co/datasets/thanatchon36/open-model-phylogeny)
 ![Code license](https://img.shields.io/badge/code%20license-not%20yet%20chosen-lightgrey)
 
+📖 **[Read the paper online](https://thanatchon36.github.io/open-model-phylogeny/paper/)** ·
 ⬇️ **[Download the PDF](https://github.com/thanatchon36/open-model-phylogeny/raw/main/paper/paper.pdf)** ·
 📊 **[Results](results/results.json)** ·
-📝 **[Research plan (Thai)](docs/MASTER_PROMPT.md)** ·
+📝 **[Research plan](docs/MASTER_PROMPT.md)** ·
 📓 **[Research log](docs/RESEARCH_LOG.md)** ·
-🌳 **[Lineage data](https://github.com/h9-tec/model-family-tree)**
+🤗 **[Research data](https://huggingface.co/datasets/thanatchon36/open-model-phylogeny)**
 
 **A phylogenetic atlas of the Hugging Face Hub, built from the lineage that models declare.**
 Fine-tunes, adapters, quantisations and merges name their parents in `base_model`, which turns the Hub into a
@@ -39,7 +41,7 @@ phylogenetics.
 
 ```bash
 pip install -r requirements.txt   # Python 3.12, plus pdflatex for the paper
-make data                         # verify data/raw against SHA256SUMS (fetches the latest upstream files if missing)
+make data                         # fetch the pinned snapshot from Hugging Face if missing, verify against SHA256SUMS
 make all                          # build -> analyze -> figures -> paper (about 10 min, ~2.5 GB RAM peak)
 ```
 
@@ -47,22 +49,23 @@ All random seeds are fixed at 42.
 
 | `make` target | Purpose | Time |
 |---|---|---|
-| `data` | Verify `data/raw` against `SHA256SUMS`, fetching any missing files | depends on network |
+| `data` | Fetch the pinned snapshot from Hugging Face if missing, then verify `data/raw` against `SHA256SUMS` | depends on network |
 | `build` | Raw parquet to cleaned DAG: case-insensitive parents, ghost nodes, cycle breaking, primary tree, families | ~20 s |
 | `analyze` | All statistics: `results/results.json` and `results/tables/*.csv` | ~90 s |
 | `figures` | Radial layout and figures F1–F6 | ~5 min |
 | `paper` | Generated macros, tables and numbers ledger, then `pdflatex` twice | |
 | `all` | `build`, `analyze`, `figures`, `paper` | ~10 min |
+| `web` | Web reader `docs/paper/` from the LaTeX source (needs pandoc) | |
+| `hf-dataset` | Assemble the Hugging Face dataset in `build/hf_dataset` | |
 | `clean` | Remove processed data and LaTeX by-products | |
 
-> [!IMPORTANT]
-> The raw snapshot is not committed, and upstream `data-latest` is rebuilt nightly. On a fresh clone, `make data`
-> downloads a **newer** snapshot, warns that it differs from `SHA256SUMS`, and the results will not match the paper.
+The raw snapshot is not committed. `make data` downloads it from the [Hugging Face dataset](https://huggingface.co/datasets/thanatchon36/open-model-phylogeny) at a fixed revision,
+because upstream `data-latest` is rebuilt nightly and would not reproduce the paper.
 
 ## Research: *Phylogenetics of Open Models* (2026)
 
 The paper is [`paper/paper.pdf`](paper/paper.pdf) (12 pages, 6 November 2026 draft), with LaTeX source in
-[`paper/paper.tex`](paper/paper.tex). It asks five questions of the lineage graph: how concentrated it is, who merges
+[`paper/paper.tex`](paper/paper.tex) and a [web version](https://thanatchon36.github.io/open-model-phylogeny/paper/) with the same text and numbers. It asks five questions of the lineage graph: how concentrated it is, who merges
 with whom, how fast new bases are reused, where attention goes, and when a derivative changes task. Every number in
 the paper is generated from `results/results.json` by `src/make_macros.py` and listed in the paper's numbers ledger.
 
@@ -72,6 +75,8 @@ the paper is generated from `results/results.json` by `src/make_macros.py` and l
 
 <p align="center"><img src="paper/figs/f4.jpg" alt="A streamgraph of monthly model births by lineage" width="720"></p>
 
+- All research data, including the raw snapshot and the processed graph: Hugging Face dataset
+  [`thanatchon36/open-model-phylogeny`](https://huggingface.co/datasets/thanatchon36/open-model-phylogeny), built by `scripts/make_hf_dataset.py`
 - Single source of truth for all statistics: [`results/results.json`](results/results.json), with cleaning counts in
   [`results/build.json`](results/build.json)
 - Tables behind the figures: [`results/tables/`](results/tables/)
@@ -92,7 +97,7 @@ python fig_more.py              # F2 coral, F5 hybridisation web, F6 statistics 
 
 ```
 assets/hero_preview.jpg   preview of F1 used in this README
-data/raw/SHA256SUMS       checksums of the pinned snapshot (the data files themselves are git-ignored)
+data/raw/SHA256SUMS       checksums of the pinned snapshot (the data files are git-ignored and live on Hugging Face)
 src/
   common.py       super-family regexes, palettes, task groups, fonts
   build.py        raw parquet -> cleaned DAG; documents the cycle-breaking and primary-parent rules
@@ -103,9 +108,9 @@ src/
   fig_more.py     F2 coral, F5 hybridisation web, F6 statistics panel
   make_macros.py  results.json -> paper/macros.tex, tables, numbers ledger, paper/figs/*.jpg
 results/          results.json, build.json and the tables behind the figures
-paper/            LaTeX source, generated macros and tables, figures, paper.pdf
-scripts/          get_data.sh (verify or fetch the snapshot)
-docs/             research plan (Thai), research log, logo
+paper/            LaTeX source, generated macros and tables, figures, web reader template, paper.pdf
+scripts/          get_data.sh (fetch and verify the snapshot), build_web_paper.py (web reader), make_hf_dataset.py (Hugging Face data)
+docs/             web reader (docs/paper/, served by GitHub Pages), research plan, research log, dataset card, logo
 CLAUDE.md         instructions and next steps for Claude Code
 ```
 
@@ -134,7 +139,8 @@ lognormal is inconclusive. The study uses public metadata only and covers one pl
 
 Lineage data: [Open Model Family Tree](https://github.com/h9-tec/model-family-tree) by h9-tec, release `data-latest`
 (CC BY 4.0), derived from the [`cfahlgren1/hub-stats`](https://huggingface.co/datasets/cfahlgren1/hub-stats) dump of
-Hugging Face Hub metadata (Apache-2.0).
+Hugging Face Hub metadata (Apache-2.0). Our copy and the derived files are in the
+[Hugging Face dataset](https://huggingface.co/datasets/thanatchon36/open-model-phylogeny), also under CC BY 4.0.
 
 ## Citation
 

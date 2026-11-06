@@ -1,0 +1,1518 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Phylogenetics of Open Models</title>
+<meta name="description" content="Working draft: a phylogenetic analysis of the Hugging Face Hub, built from the lineage that models declare.">
+<meta name="author" content="Thanatchon Chongmankhong">
+<style>
+/* Web reader for paper/paper.tex, in the same format as the stablerun reader: one reading column (~46rem)
+   with a results strip up top. System font stacks only: no third-party requests. Colour tokens on :root,
+   redefined for dark. Built by scripts/build_web_paper.py. */
+:root {
+  --paper: #fbfbf9; --ink: #17191c; --ink-2: #4c5058; --rule: #dcdcd6;
+  --accent: #1f5fae; --accent-soft: #e6eef8;
+  --pos: #1d6b52; --pos-soft: #e3f1ea; --null: #6b6f78; --null-soft: #eeeeea;
+  --find: #8a5a12; --find-soft: #f6eedd; --plate: #ffffff; --quote: #f3f3ef;
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-body: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #15171a; --ink: #e8e9ec; --ink-2: #a6abb4; --rule: #30343a;
+    --accent: #7fb0ec; --accent-soft: #1b2a3d; --pos: #7dcfac; --pos-soft: #16302a;
+    --null: #a6abb4; --null-soft: #23262b; --find: #e7bd73; --find-soft: #33291a;
+    --plate: #f4f4f2; --quote: #1d2024; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #15171a; --ink: #e8e9ec; --ink-2: #a6abb4; --rule: #30343a;
+  --accent: #7fb0ec; --accent-soft: #1b2a3d; --pos: #7dcfac; --pos-soft: #16302a;
+  --null: #a6abb4; --null-soft: #23262b; --find: #e7bd73; --find-soft: #33291a;
+  --plate: #f4f4f2; --quote: #1d2024; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 17px/1.62 var(--font-body); }
+.page { max-width: 46rem; margin: 0 auto; padding-inline: 16px; padding-block: 48px 72px;
+  display: flex; flex-direction: column; gap: 40px; }
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 650; text-wrap: balance; line-height: 1.2; }
+h1 { font-size: clamp(1.7rem, 4.2vw, 2.35rem); margin: 0; letter-spacing: -0.01em; }
+h2 { font-size: 1.4rem; margin: 2.2em 0 0.5em; }
+h3 { font-size: 1.12rem; margin: 1.8em 0 0.4em; }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+code { font: 500 0.84em var(--font-mono); overflow-wrap: anywhere; }
+pre { background: var(--quote); border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px;
+  overflow-x: auto; font-size: 0.84rem; line-height: 1.5; }
+pre code { font-weight: 400; font-size: inherit; overflow-wrap: normal; }
+.masthead { display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid var(--rule); padding-bottom: 28px; }
+.kicker { margin: 0; font: 500 0.78rem var(--font-mono); text-transform: uppercase; letter-spacing: 0.09em; color: var(--accent); }
+.subtitle { margin: 0; font-style: italic; color: var(--ink-2); font-size: 1.05rem; }
+.byline { margin: 0; color: var(--ink-2); }
+.meta { margin: 0; font: 400 0.8rem/1.6 var(--font-mono); color: var(--ink-2); }
+.meta b { font-weight: 500; color: var(--ink); }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 0; padding: 0; list-style: none; }
+.actions a { display: inline-block; padding: 6px 12px; border: 1px solid var(--rule); border-radius: 999px;
+  font: 500 0.78rem var(--font-mono); text-decoration: none; color: var(--ink); }
+.actions a:hover { border-color: var(--accent); color: var(--accent); }
+.abstract h2, .results h2, .toc h2, .cite h2 { margin: 0 0 10px; font-size: 0.82rem; font-family: var(--font-mono);
+  font-weight: 500; text-transform: uppercase; letter-spacing: 0.09em; color: var(--ink-2); }
+.abstract-body p { margin: 0 0 0.8em; font-size: 1.04rem; }
+.abstract-body p:last-child { margin-bottom: 0; }
+.results .note { margin: 0 0 14px; color: var(--ink-2); font-size: 0.95rem; }
+.result-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: 8px; }
+.r { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "id tag" "text text"; gap: 2px 10px;
+  align-content: start; padding: 10px 12px; border-radius: 6px; border-left: 3px solid; font-size: 0.9rem; line-height: 1.4; }
+.r-pos { background: var(--pos-soft); border-color: var(--pos); }
+.r-ref { background: var(--find-soft); border-color: var(--find); }
+.r-null, .r-nf { background: var(--null-soft); border-color: var(--null); }
+.r-id { grid-area: id; font: 500 0.85rem var(--font-mono); }
+.r-text { grid-area: text; }
+.r-text small { display: block; color: var(--ink-2); font-size: 0.8rem; margin-top: 2px; }
+.toc ul { margin: 0; padding-left: 1.2em; columns: 2 14rem; column-gap: 32px; }
+.toc li { break-inside: avoid; }
+.toc ul ul { columns: 1; padding-left: 1em; font-size: 0.92em; color: var(--ink-2); }
+.toc a { text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.paper h1 { font-size: 1.55rem; margin: 2em 0 0.5em; padding-top: 0.6em; border-top: 1px solid var(--rule); }
+.paper p, .paper li { hyphens: auto; }
+.paper p { margin: 0 0 1em; }
+.paper math[display="block"] { overflow-x: auto; max-width: 100%; }
+/* MathML does not line-break: a long inline formula scrolls on its own instead of widening the page */
+.paper math.wide { display: inline-block; max-width: 100%; overflow-x: auto; overflow-y: hidden; vertical-align: middle; }
+/* A display equation with its number at the right; a wide one scrolls on its own, the number stays put. */
+.eq { display: flex; align-items: center; gap: 12px; margin: 1.1em 0; scroll-margin-top: 16px; }
+.eq math { display: block; flex: 1 1 auto; min-width: 0; overflow-x: auto; overflow-y: hidden; padding-block: 4px; }
+.eqno { flex: none; font: 400 0.85rem var(--font-mono); color: var(--ink-2); }
+.paper [id] { scroll-margin-top: 16px; }
+.paper .header-section-number { color: var(--accent); margin-right: 0.5em; font-family: var(--font-mono); font-size: 0.85em; font-weight: 500; }
+.paper blockquote { margin: 1.2em 0; padding: 10px 16px; border-left: 3px solid var(--rule); background: var(--quote);
+  border-radius: 0 6px 6px 0; font-size: 0.93rem; color: var(--ink-2); }
+.paper blockquote p:last-child { margin-bottom: 0; }
+figure { margin: 1.6em 0; display: flex; flex-direction: column; gap: 10px; }
+figure img { border-radius: 6px; border: 1px solid var(--rule); max-width: 100%; height: auto; }
+.todocite { color: var(--find); }
+.paper h4 { font-size: 1rem; margin: 1.4em 0 0.3em; }
+figcaption, caption, .tcap { font-size: 0.88rem; color: var(--ink-2); line-height: 1.45; text-align: left; }
+caption { caption-side: top; padding-bottom: 8px; }
+.tbl { margin: 1.6em 0; }
+.paper .tcap { margin: 0 0 8px; hyphens: auto; }
+.tscroll { overflow-x: auto; }
+/* Tables keep their natural width (scrolling sideways when wider than the column); only long text cells wrap. */
+.paper table { border-collapse: collapse; width: max-content; min-width: 100%;
+  font: 400 0.78rem/1.45 var(--font-mono); font-variant-numeric: tabular-nums; }
+.paper td { max-width: 17em; }
+/* Code in table cells must not break per letter on phones; the table scrolls sideways instead. */
+.paper table code { overflow-wrap: normal; word-break: normal; white-space: nowrap; }
+th, td { padding: 6px 10px; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+th { font-weight: 500; color: var(--ink-2); border-bottom-color: var(--ink-2); }
+.paper strong { font-weight: 650; }
+.paper figcaption strong, .paper .tcap strong { color: var(--ink); }
+.csl-entry { margin: 0 0 0.6em; padding-left: 1.5em; text-indent: -1.5em; font-size: 0.92rem; overflow-wrap: anywhere; }
+.cite { min-width: 0; }
+/* BibTeX keeps its lines intact (no mid-URL breaks); the block scrolls sideways on narrow screens. */
+.cite pre { overflow-x: auto; }
+.cite pre, .cite pre code { white-space: pre; overflow-wrap: normal; word-break: normal; }
+.colophon { border-top: 1px solid var(--rule); padding-top: 20px; color: var(--ink-2); font-size: 0.85rem; }
+.colophon p { margin: 0 0 0.7em; }
+@media (max-width: 480px) { body { font-size: 16px; } .page { padding-block: 28px 48px; gap: 28px; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="page">
+<header class="masthead">
+  <p class="kicker">Working draft · open-model-phylogeny</p>
+  <h1>Phylogenetics of Open Models</h1>
+  <p class="subtitle">Structure, Hybridisation, Tempo and Speciation in the Hugging Face Lineage Graph</p>
+  <p class="byline">Thanatchon Chongmankhong · <a href="https://github.com/thanatchon36/open-model-phylogeny">github.com/thanatchon36/open-model-phylogeny</a></p>
+  <p class="meta"><b>Working draft, 6 November 2026</b></p>
+  <ul class="actions"><li><a href="paper.pdf">Download PDF</a></li><li><a href="https://github.com/thanatchon36/open-model-phylogeny">Code and replication</a></li><li><a href="https://huggingface.co/datasets/thanatchon36/open-model-phylogeny">Data (Hugging Face)</a></li></ul>
+</header>
+<section class="abstract" aria-label="Abstract">
+  <h2>Abstract</h2>
+  <div class="abstract-body"><p>Hugging Face hosts 3,213,043 public models, and 28.6% of them now declare a parent: they are fine-tunes, adapters, quantisations or merges of other models. These declarations turn the Hub into a population whose genealogy can be read. We reconstruct the complete lineage graph from a snapshot taken on 5 November 2026 (965,292 connected models, 952,646 parent–child links) and study it with concepts borrowed from phylogenetics. Lineage is extremely concentrated: the top 1% of roots (458 models) account for 74.8% of all connected models, family sizes are heavy-tailed (power-law exponent <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>1.73</mn></mrow><annotation encoding="application/x-tex">\alpha=1.73</annotation></semantics></math>), and 95.1% of derivatives never acquire offspring. Merging is strongly assortative: 39.0% of the parent pairs of merged models share a declared ancestor, against 2.1% when parents are randomly re-paired. The derivative economy keeps accelerating: for heavily reused bases, the median time to the first fine-tune fell from 35.1 days (bases released in the second half of 2023) to 2.8 days (first half of 2026). Reproduction and attention are both skewed: the top 1% of uploaders produce 52.5% of all derivatives, and the top 1% of derivatives receive 95.9% of their downloads. Finally, 18.7% of parent–child links cross a task boundary, a form of speciation dominated by masked-language encoders that become classifiers. We release a reproducible pipeline and a visual atlas of the Hub’s family tree.</p>
+</div>
+</section>
+<section class="results" aria-label="Results at a glance">
+  <h2>Results at a glance</h2>
+  <p class="note">Headline numbers, read from the result files. Amber: results; grey: pending.</p>
+  <ul class="result-list"><li class="r r-ref"><span class="r-id">Structure</span><span class="r-text">The top 1% of roots hold 74.8% of connected models<small>Gini 0.88 on family size; 95.1% of derivatives never have offspring</small></span></li>
+<li class="r r-ref"><span class="r-id">Hybridisation</span><span class="r-text">39.0% of merged parent pairs are relatives<small>against 2.1% under random re-pairing of parents</small></span></li>
+<li class="r r-ref"><span class="r-id">Tempo</span><span class="r-text">First fine-tune: 35.1 days down to 2.8 days<small>median for heavily reused bases, 2023 H2 releases against 2026 H1 releases</small></span></li>
+<li class="r r-ref"><span class="r-id">Attention</span><span class="r-text">The top 1% of derivatives receive 95.9% of their downloads<small>and the top 1% of uploaders produce 52.5% of derivatives</small></span></li>
+<li class="r r-ref"><span class="r-id">Speciation</span><span class="r-text">18.7% of parent-to-child links change task group<small>led by fill-mask to text classification</small></span></li>
+<li class="r r-null"><span class="r-id">License drift</span><span class="r-text">Not analysed yet<small>the snapshot has no per-model license tags; this analysis of the original plan is pending</small></span></li>
+<li class="r r-null"><span class="r-id">References</span><span class="r-text">Citations still to be verified<small>related work is marked [CITE] and the method references were written from memory</small></span></li></ul>
+</section>
+<nav class="toc" aria-label="Contents"><h2>Contents</h2>
+<ul>
+<li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">1</span> Introduction</a></li>
+<li><a href="#background-and-related-work" id="toc-background-and-related-work"><span class="toc-section-number">2</span> Background and related work</a></li>
+<li><a href="#sec:data" id="toc-sec:data"><span class="toc-section-number">3</span> Data</a></li>
+<li><a href="#sec:graph" id="toc-sec:graph"><span class="toc-section-number">4</span> Lineage graph construction</a></li>
+<li><a href="#sec:methods" id="toc-sec:methods"><span class="toc-section-number">5</span> Methods</a></li>
+<li><a href="#results" id="toc-results"><span class="toc-section-number">6</span> Results</a></li>
+<li><a href="#discussion" id="toc-discussion"><span class="toc-section-number">7</span> Discussion</a></li>
+<li><a href="#sec:threats" id="toc-sec:threats"><span class="toc-section-number">8</span> Threats to validity</a></li>
+<li><a href="#sec:ethics" id="toc-sec:ethics"><span class="toc-section-number">9</span> Ethics, limitations and future work</a></li>
+<li><a href="#conclusion" id="toc-conclusion"><span class="toc-section-number">10</span> Conclusion</a></li>
+<li><a href="#references" id="toc-references">References</a></li>
+<li><a href="#app:A" id="toc-app:A"><span class="toc-section-number">A</span> References to find</a></li>
+<li><a href="#app:B" id="toc-app:B"><span class="toc-section-number">B</span> Numbers ledger</a></li>
+</ul>
+</nav>
+<article class="paper">
+<h1 data-number="1" id="introduction"><span class="header-section-number">1</span> Introduction</h1>
+<p>Open-weight models are rarely used exactly as released. Soon after a base model is published, the community uploads fine-tuned variants, parameter-efficient adapters, quantised builds for consumer hardware, and merges that blend several models into one. On the Hugging Face Hub these derivatives can declare where they come from: a model card may name one or more base models and the kind of relation, and the Hub turns that metadata into a navigable model tree <span class="todocite">[CITE: Hugging Face Hub documentation of the <code>base_model</code> field]</span>. Aggregated over the whole Hub, these declarations form a genealogy of open models.</p>
+<p>This paper reads that genealogy the way a biologist reads a phylogeny. Bases are roots, derivatives are descendants, merges are hybrids with several parents, and a derivative that changes its task is a speciation event. The analogy is imperfect, since models do not compete for resources and copying is free, but it gives precise vocabulary for questions that matter to platform operators, model developers and researchers who audit the supply chain of machine-learning artefacts <span class="todocite">[CITE: studies of pre-trained model reuse and supply chains on Hugging Face]</span>. We ask five questions:</p>
+<ul>
+<li><p><strong>RQ1</strong> <em>Structure</em>: how large, deep and concentrated are model families?</p></li>
+<li><p><strong>RQ2</strong> <em>Hybridisation</em>: do merges combine relatives or unrelated lineages?</p></li>
+<li><p><strong>RQ3</strong> <em>Tempo</em>: how quickly do derivatives appear, and is the ecosystem speeding up?</p></li>
+<li><p><strong>RQ4</strong> <em>Attention</em>: how are downloads distributed across descendants, and which derivatives stay in use?</p></li>
+<li><p><strong>RQ5</strong> <em>Speciation</em>: how often does a derivative change its task, and along which routes?</p></li>
+</ul>
+<p>Our original design also targeted license drift, that is, whether derivatives keep the obligations attached to their ancestors’ licenses. The snapshot available in our analysis environment carries no license metadata, so we report the analyses the data support and describe the license extension as future work (Section <a href="#sec:ethics">9</a>).</p>
+<h4 id="contributions.">Contributions.</h4>
+<p>(C1) A reproducible pipeline that turns declared ancestry into a cleaned lineage DAG, with explicit rules for ghosts, cycles and multi-parent merges. (C2) A phylogenetic characterisation of the whole Hub. (C3) A kinship analysis of model merging against a permutation null model. (C4) Measurements of the tempo of derivative production. (C5) An analysis of task speciation. (C6) A visual atlas, led by the radial chronogram in Figure <a href="#fig:hero">1</a>.</p>
+<h1 data-number="2" id="background-and-related-work"><span class="header-section-number">2</span> Background and related work</h1>
+<h4 id="lineage-metadata.">Lineage metadata.</h4>
+<p>Model cards on the Hub carry YAML metadata. The <code>base_model</code> field lists parent repositories, and each link is labelled as <em>finetune</em>, <em>adapter</em>, <em>quantized</em> or <em>merge</em>, either by the author or by the Hub; older cards express the same information through <code>base_model:</code> tags. Declarations are voluntary, so any graph built from them is a lower bound on actual reuse.</p>
+<h4 id="empirical-studies-of-model-ecosystems.">Empirical studies of model ecosystems.</h4>
+<p>Prior work has measured reuse, documentation and dependencies on model hubs <span class="todocite">[CITE: empirical studies of pre-trained model reuse on Hugging Face]</span>, mapped families of fine-tuned models <span class="todocite">[CITE: model atlas and family-tree studies of the Hub]</span>, and examined licensing across the machine-learning supply chain <span class="todocite">[CITE: license compliance studies of ML models and datasets]</span>. We complement these with a whole-Hub, time-resolved analysis that treats merges, timing and task change explicitly.</p>
+<h4 id="methods-and-visualisation.">Methods and visualisation.</h4>
+<p>We test heavy tails following Clauset et al. [<a href="#ref-clauset2009">4</a>] with the <code>powerlaw</code> package [<a href="#ref-alstott2014">1</a>]. The radial chronogram adapts the radial tree links popularised by D3 [<a href="#ref-bostock2011">2</a>] and bundles hybrid links through common ancestors in the spirit of hierarchical edge bundling [<a href="#ref-holten2006">10</a>]; the streamgraph follows Byron and Wattenberg [<a href="#ref-byron2008">3</a>]. Layouts use igraph [<a href="#ref-csardi2006">5</a>]; statistics use statsmodels [<a href="#ref-seabold2010">11</a>] and NumPy [<a href="#ref-harris2020">8</a>].</p>
+<h1 data-number="3" id="sec:data"><span class="header-section-number">3</span> Data</h1>
+<p>We use the Open Model Family Tree [<a href="#ref-h9tec2026">9</a>], a nightly rebuild of the Hub’s declared ancestry from the public <code>hub-stats</code> dump of the <code>/api/models</code> endpoint [<a href="#ref-hubstats">7</a>]. Its <code>data-latest</code> release (snapshot of 5 November 2026; data licensed CC BY 4.0) provides a node table with one row per public model (identifier, author, creation and modification time, downloads over the last 30 days and all time, likes, pipeline tag and library) and an edge table of 952,659 child–parent links labelled by relation. Our analysis environment could not reach the Hub directly, so this third-party snapshot is our sole source (Section <a href="#sec:threats">8</a>).</p>
+<h4 id="cleaning.">Cleaning.</h4>
+<p>We dropped 1 duplicated node row and matched 2,304 parent identifiers that differed only in letter case. We kept 3,969 parents that no longer resolve to a public model as <em>ghost</em> nodes (deleted, private or renamed bases). Cycles can only arise from mis-declared metadata; they involved 110 nodes, and we broke them by removing 13 edges, first those whose child is older than its parent, then the incoming residual edges of the oldest node. The Hub assigns a single creation date (2022-03-02) to every repository created before it recorded dates. 29,557 models carry it, and we treat it as left-censored in all timing analyses.</p>
+<h4 id="resulting-graph.">Resulting graph.</h4>
+<p>965,292 models (30.0% of the Hub) declare a parent or have a child; they are joined by 952,646 edges, and 919,442 of them declare at least one parent. Of these derivatives, 39.9% are fine-tunes, 36.8% adapters, 21.6% quantisations and 1.7% merges. The graph involves 160,374 distinct accounts.</p>
+<figure>
+<img loading="lazy" alt="The Tree of Open Models. Every Hugging Face model that declares a parent or has a child (965,292 models). Radius encodes the creation date, from the inner ring (early 2022) to the rim (5 November 2026); dashed rings mark 1 January of each year. Angle encodes lineage: each super-family occupies a wedge, each root’s descendants occupy an interval proportional to their number, and children are placed in birth order, so a base’s offspring sweep around it as they appear. Curves follow the primary tree; pale bundled curves are the 15,208 multi-parent merges, routed through the parents’ common ancestor. Stars mark the most-descended bases; point brightness scales with all-time downloads. The bright “sails” are single bases with very large broods of offspring created in short bursts." src="figures/f1.jpg" />
+<figcaption><span id="fig:hero"><strong>Figure 1.</strong></span> <strong>The Tree of Open Models.</strong> Every Hugging Face model that declares a parent or has a child (965,292 models). Radius encodes the creation date, from the inner ring (early 2022) to the rim (5 November 2026); dashed rings mark 1 January of each year. Angle encodes lineage: each super-family occupies a wedge, each root’s descendants occupy an interval proportional to their number, and children are placed in birth order, so a base’s offspring sweep around it as they appear. Curves follow the primary tree; pale bundled curves are the 15,208 multi-parent merges, routed through the parents’ common ancestor. Stars mark the most-descended bases; point brightness scales with all-time downloads. The bright “sails” are single bases with very large broods of offspring created in short bursts.</figcaption>
+</figure>
+<h1 data-number="4" id="sec:graph"><span class="header-section-number">4</span> Lineage graph construction</h1>
+<ul>
+<li><p>A <em>root</em> is a model with descendants but no declared parent; there are 45,849.</p></li>
+<li><p>Every non-root has a <em>primary parent</em>: its only parent or, for a multi-parent model, the parent with the largest lineage (ties broken by age). This rule differs from the first-listed parent for 8,543 models. Primary parents define a spanning forest, the <em>primary tree</em>; all other links are <em>hybridisation</em> edges.</p></li>
+<li><p>A model’s <em>generation</em> is its depth in the primary tree. Its <em>hybrid depth</em> is the largest number of multi-parent events on any path from a root.</p></li>
+<li><p>A <em>family</em> is the set of models below one root in the primary tree. For reporting we also use the upstream series keys (24,596 keys, such as <code>qwen2.5</code> or <code>llama-3.1</code>) grouped into twelve <em>super-families</em> (Qwen, Llama, Gemma, Mistral, FLUX, Stable Diffusion, BERT family, Whisper, SmolLM, DeepSeek, Phi and T5) plus a long tail.</p></li>
+</ul>
+<h1 data-number="5" id="sec:methods"><span class="header-section-number">5</span> Methods</h1>
+<h4 id="structure-rq1.">Structure (<strong>RQ1</strong>).</h4>
+<p>Family size is the number of models in a root’s primary subtree, root included. We fit a discrete power law above an <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi mathvariant="normal">min</mi></msub><annotation encoding="application/x-tex">x_{\min}</annotation></semantics></math> chosen by Kolmogorov–Smirnov minimisation and compare it with lognormal and exponential alternatives by normalised log-likelihood ratios <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>, where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">R&gt;0</annotation></semantics></math> favours the power law [<a href="#ref-alstott2014">1</a>, <a href="#ref-clauset2009">4</a>]. Concentration is summarised by the Gini coefficient and top shares.</p>
+<h4 id="hybridisation-rq2.">Hybridisation (<strong>RQ2</strong>).</h4>
+<p>For every multi-parent model, each pair of its parents is classified by declared ancestry as a <em>backcross</em> (one parent descends from the other), <em>siblings</em> (they share a direct parent), <em>cousins</em> (they share a more distant ancestor) or an <em>outcross</em> (no shared ancestor). The null model re-pairs parents at random 100 times, shuffling them across merged models while preserving each model’s number of parents and each parent’s frequency.</p>
+<h4 id="tempo-rq3.">Tempo (<strong>RQ3</strong>).</h4>
+<p>The lag of an edge is the child’s creation time minus the parent’s. We exclude ghost and backfilled endpoints and negative lags (0.4% of the 832,903 eligible edges). A base’s <em>reaction time</em> for a relation is the lag of its first child of that kind; we compute it for the 701 bases with at least 100 direct children released between 1 January 2023 and six months before the snapshot, and test cohort trends with Spearman’s <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ρ</mi><annotation encoding="application/x-tex">\rho</annotation></semantics></math>. Because declaring a base became common only gradually, we repeat the test for bases released from 2024 onwards.</p>
+<h4 id="attention-rq4.">Attention (<strong>RQ4</strong>).</h4>
+<p>A derivative is <em>active</em> if it was downloaded at least once in the 30 days before the snapshot. A logistic regression relates activity to relation type, generation, having several parents, uploader size and age (both <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>10</mn></msub><annotation encoding="application/x-tex">\log_{10}</annotation></semantics></math>), with super-family indicators and standard errors clustered by family key.</p>
+<h4 id="speciation-rq5.">Speciation (<strong>RQ5</strong>).</h4>
+<p>Pipeline tags are mapped to twelve task groups (for example text generation, vision–language, text classification, fill-mask, embeddings and ranking, image and video generation). An edge <em>speciates</em> when parent and child fall in different groups; we use the 485,259 edges where both tags are known.</p>
+<h4 id="uncertainty-and-robustness.">Uncertainty and robustness.</h4>
+<p>Confidence intervals for proportions come from a cluster bootstrap with families as clusters (500 replicates) [<a href="#ref-efron1993">6</a>]. We re-run headline metrics under an alternative primary-parent rule, without quantised models, without the top 1% of uploaders, and on the last 24 months only.</p>
+<h4 id="visualisation.">Visualisation.</h4>
+<p>The radial chronogram (Figure <a href="#fig:hero">1</a>) places each model at an angle given by a birth-ordered depth-first layout of its family and at a radius given by its creation date; links are cubic curves that leave and enter radially. Hybrid links are bundled through the position of the parents’ most recent common ancestor. A custom additive rasteriser draws all 952,646 links with luminous blending. The coral view (Figure <a href="#fig:coral">2</a>) lays out the skeleton of models that have children with a force-directed algorithm and arranges childless offspring around their parent on sunflower discs.</p>
+<h1 data-number="6" id="results"><span class="header-section-number">6</span> Results</h1>
+<h2 data-number="6.1" id="structure-rq1"><span class="header-section-number">6.1</span> Structure (<strong>RQ1</strong>)</h2>
+<p>Lineage is concentrated in a few giant families. 71.4% of roots have families of at most three models, yet the top 1% of roots (458) hold 74.8% of all connected models and the ten largest alone hold 23.2%. The Gini coefficient of family sizes is 0.88, and the largest single-root family has 43,716 models. The tail is heavy: a power law with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>1.73</mn></mrow><annotation encoding="application/x-tex">\alpha=1.73</annotation></semantics></math> fits sizes above <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi mathvariant="normal">min</mi></msub><mo>=</mo><mn>11</mn></mrow><annotation encoding="application/x-tex">x_{\min}=11</annotation></semantics></math> (3,502 roots) and is strongly preferred to an exponential (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>14.4</mn></mrow><annotation encoding="application/x-tex">R=14.4</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math> &lt;0.001), but cannot be distinguished from a lognormal (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mi>−</mi><mn>1.02</mn></mrow><annotation encoding="application/x-tex">R=-1.02</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>0.31</mn></mrow><annotation encoding="application/x-tex">p=0.31</annotation></semantics></math>; Figure <a href="#fig:stats">5</a>a). By named lineage, the Qwen super-family alone contains 251,278 models (26.0% of the graph), and the ten largest family keys hold 42.7%.</p>
+<p>The tree is shallow and bushy. 66.0% of derivatives are direct children of a root and only 13.1% sit three or more generations deep; the 99th percentile is 5 generations and the maximum is 39 in the primary tree, or 151 along the longest path through merges. The median parent has 2 children, while the most prolific has 43,436. Overall 95.1% of derivatives are leaves, but fertility depends sharply on the relation: 99.3% of adapters and 98.4% of quantisations never have children, against 91.6% of fine-tunes and only 43.6% of merges. Merges are the ecosystem’s breeding stock. Table <a href="#tab:gen">1</a> shows that adapters dominate the first generation, while fine-tunes and quantisations dominate later ones. Finally, 20,056 models (2.1%) descend from ghost roots, lineages whose founder is no longer public.</p>
+<div class="tbl"><p class="tcap"><span id="tab:gen"><strong>Table 1.</strong></span> Relation of each derivative to its primary parent, by generation.</p><div class="tscroll"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Generation</th>
+<th style="text-align: right;">Models</th>
+<th style="text-align: right;">Fine-tune</th>
+<th style="text-align: right;">Adapter</th>
+<th style="text-align: right;">Quantised</th>
+<th style="text-align: right;">Merge</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">607,233</td>
+<td style="text-align: right;">38.6%</td>
+<td style="text-align: right;">44.3%</td>
+<td style="text-align: right;">16.3%</td>
+<td style="text-align: right;">0.8%</td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">191,813</td>
+<td style="text-align: right;">43.6%</td>
+<td style="text-align: right;">26.2%</td>
+<td style="text-align: right;">27.9%</td>
+<td style="text-align: right;">2.3%</td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">82,510</td>
+<td style="text-align: right;">40.3%</td>
+<td style="text-align: right;">19.2%</td>
+<td style="text-align: right;">36.4%</td>
+<td style="text-align: right;">4.1%</td>
+</tr>
+<tr>
+<td style="text-align: left;">4+</td>
+<td style="text-align: right;">37,886</td>
+<td style="text-align: right;">42.0%</td>
+<td style="text-align: right;">7.4%</td>
+<td style="text-align: right;">42.7%</td>
+<td style="text-align: right;">7.8%</td>
+</tr>
+</tbody>
+</table></div></div>
+<figure>
+<img loading="lazy" alt="A family as a coral: Qwen2.5 (71,641 models). The force-directed skeleton holds every model that has children; childless offspring bloom around their parent on sunflower discs, ordered by relation (colour) and birth. Bright hubs are the base and instruct checkpoints with the most direct children." src="figures/f2.jpg" />
+<figcaption><span id="fig:coral"><strong>Figure 2.</strong></span> <strong>A family as a coral: Qwen2.5</strong> (71,641 models). The force-directed skeleton holds every model that has children; childless offspring bloom around their parent on sunflower discs, ordered by relation (colour) and birth. Bright hubs are the base and instruct checkpoints with the most direct children.</figcaption>
+</figure>
+<h2 data-number="6.2" id="hybridisation-rq2"><span class="header-section-number">6.2</span> Hybridisation (<strong>RQ2</strong>)</h2>
+<p>15,208 models declare two or more parents, including 98.5% of those labelled as merges. Most hybrids have two parents (58.2%), but one lists 100. Across 114,989 parent pairs, 11.9% are backcrosses, 10.8% siblings and 16.3% cousins, while 61.0% share no declared ancestor (95% CI 53.0%–75.3%). Under random re-pairing only 2.1% of pairs are related, so merges join relatives 18.4 times more often than chance (permutation <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>≤</mo><mn>0.01</mn></mrow><annotation encoding="application/x-tex">p\le0.01</annotation></semantics></math>; Figure <a href="#fig:hybrid">3</a>). Family keys tell the same story: 51.1% of observed pairs cross family keys, against 95.0% under the null, and 31.1% cross super-families.</p>
+<p>Merging also builds the deepest lineages. One chain reaches 142 successive merges. Of the 4,787 models that sit at least ten merges deep, 38.4% come from a single account (258 accounts in total), the signature of automated, evolutionary merging pipelines. The largest ancestor set of a merged model contains 522 models.</p>
+<figure>
+<img loading="lazy" alt="Model merging is assortative. Left: the families most involved in merges; curves join the families of two parents of the same merged model, bundled through their super-family hubs. Right: kinship of the 114,989 parent pairs compared with 100 random re-pairings." src="figures/f5.jpg" />
+<figcaption><span id="fig:hybrid"><strong>Figure 3.</strong></span> <strong>Model merging is assortative.</strong> Left: the families most involved in merges; curves join the families of two parents of the same merged model, bundled through their super-family hubs. Right: kinship of the 114,989 parent pairs compared with 100 random re-pairings.</figcaption>
+</figure>
+<h2 data-number="6.3" id="tempo-rq3"><span class="header-section-number">6.3</span> Tempo (<strong>RQ3</strong>)</h2>
+<p>Derivative production exploded after 2023 (Figure <a href="#fig:stream">4</a>). The graph gained 34,075 derivatives in 2023, 283,534 in 2024, 304,015 in 2025 and 292,438 in the first ten months of 2026. The busiest month, September 2024, added 78,224 derivatives, led by the Qwen super-family; no single account contributed more than 7.9% of them.</p>
+<figure>
+<img loading="lazy" alt="The Cambrian explosion of open-model derivatives. Monthly births of models that declare a parent, by super-family (3-month moving average, streamgraph layout)." src="figures/f4.jpg" />
+<figcaption><span id="fig:stream"><strong>Figure 4.</strong></span> <strong>The Cambrian explosion of open-model derivatives.</strong> Monthly births of models that declare a parent, by super-family (3-month moving average, streamgraph layout).</figcaption>
+</figure>
+<p>Quantisations follow their parent fastest: the median lag is 30.5 days, 18.6% arrive within a day, 35.7% within a week and 49.8% within a month. Merges follow with a median of 49.6 days (40.6% within a month). Fine-tunes (247.6 days) and adapters (231.2 days) have long lags because popular bases keep attracting derivatives for years (Figure <a href="#fig:stats">5</a>b).</p>
+<p>For the 701 heavily reused bases, the median reaction time is 6.6 days for the first quantisation, 7.2 for the first fine-tune, 29.4 for the first adapter and 29.0 for the first merge. Reaction keeps getting faster (Table <a href="#tab:reaction">2</a>, Figure <a href="#fig:stats">5</a>c). The median time to the first fine-tune fell from 35.1 days for bases released in the second half of 2023 to 2.8 days in the first half of 2026; for quantisations it fell from 13.6 to 2.8 days, and for adapters from 35.0 to 8.2. Release date and reaction time are negatively correlated for fine-tunes (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo>=</mo><mi>−</mi><mn>0.42</mn></mrow><annotation encoding="application/x-tex">\rho=-0.42</annotation></semantics></math>; <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo>=</mo><mi>−</mi><mn>0.31</mn></mrow><annotation encoding="application/x-tex">\rho=-0.31</annotation></semantics></math> for the 559 bases released from 2024), quantisations (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo>=</mo><mi>−</mi><mn>0.29</mn></mrow><annotation encoding="application/x-tex">\rho=-0.29</annotation></semantics></math>; <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo>=</mo><mi>−</mi><mn>0.21</mn></mrow><annotation encoding="application/x-tex">\rho=-0.21</annotation></semantics></math> for 549 bases from 2024) and adapters (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo>=</mo><mi>−</mi><mn>0.27</mn></mrow><annotation encoding="application/x-tex">\rho=-0.27</annotation></semantics></math> from 2024), but not for merges (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo>=</mo><mn>0.05</mn></mrow><annotation encoding="application/x-tex">\rho=0.05</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>0.42</mn></mrow><annotation encoding="application/x-tex">p=0.42</annotation></semantics></math>).</p>
+<div class="tbl"><p class="tcap"><span id="tab:reaction"><strong>Table 2.</strong></span> Median days from a base’s release to its first child of each kind, by release cohort (bases with at least 100 direct children).</p><div class="tscroll"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Cohort</th>
+<th style="text-align: right;">Bases</th>
+<th style="text-align: right;">Fine-tune</th>
+<th style="text-align: right;">Quantised</th>
+<th style="text-align: right;">Adapter</th>
+<th style="text-align: right;">Merge</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">2023H1</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">165.2</td>
+<td style="text-align: right;">203.4</td>
+<td style="text-align: right;">315.0</td>
+<td style="text-align: right;">1263.4</td>
+</tr>
+<tr>
+<td style="text-align: left;">2023H2</td>
+<td style="text-align: right;">91</td>
+<td style="text-align: right;">35.1</td>
+<td style="text-align: right;">13.6</td>
+<td style="text-align: right;">35.0</td>
+<td style="text-align: right;">146.1</td>
+</tr>
+<tr>
+<td style="text-align: left;">2024H1</td>
+<td style="text-align: right;">138</td>
+<td style="text-align: right;">17.7</td>
+<td style="text-align: right;">12.8</td>
+<td style="text-align: right;">58.8</td>
+<td style="text-align: right;">27.0</td>
+</tr>
+<tr>
+<td style="text-align: left;">2024H2</td>
+<td style="text-align: right;">180</td>
+<td style="text-align: right;">5.4</td>
+<td style="text-align: right;">5.9</td>
+<td style="text-align: right;">44.1</td>
+<td style="text-align: right;">20.7</td>
+</tr>
+<tr>
+<td style="text-align: left;">2025H1</td>
+<td style="text-align: right;">127</td>
+<td style="text-align: right;">4.1</td>
+<td style="text-align: right;">3.9</td>
+<td style="text-align: right;">18.7</td>
+<td style="text-align: right;">22.9</td>
+</tr>
+<tr>
+<td style="text-align: left;">2025H2</td>
+<td style="text-align: right;">68</td>
+<td style="text-align: right;">3.1</td>
+<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">16.6</td>
+<td style="text-align: right;">23.9</td>
+</tr>
+<tr>
+<td style="text-align: left;">2026H1</td>
+<td style="text-align: right;">65</td>
+<td style="text-align: right;">2.8</td>
+<td style="text-align: right;">2.8</td>
+<td style="text-align: right;">8.2</td>
+<td style="text-align: right;">42.3</td>
+</tr>
+</tbody>
+</table></div></div>
+<p>Fast reaction does not mean short attention. For the 600 bases older than a year, the median share of first-year children born in the first 30 days is only 7.3%, and half of a base’s first-year children typically arrive after 141.6 days. Production is also concentrated among uploaders: of 153,804 accounts, the top ten produce 13.7% of all derivatives, the top hundred 29.3% and the top 1% (1,603 accounts) 52.5%, a Gini coefficient of 0.77.</p>
+<h2 data-number="6.4" id="attention-rq4"><span class="header-section-number">6.4</span> Attention (<strong>RQ4</strong>)</h2>
+<p>Downloads are even more concentrated than reproduction. Derivatives have accumulated 17.0 billion downloads, 95.9% of them by the top 1% of derivatives (Gini 0.993). Median all-time downloads are 938 for quantisations, 152 for merges, 53 for fine-tunes and 22 for adapters. 12.4% of derivatives had no download in the last 30 days (95% CI 9.6%–15.6%) and 11.4% were never downloaded. Dormancy reaches 25.2% among fine-tunes, against 4.6% for adapters, 2.7% for quantisations and 5.2% for merges.</p>
+<p>The regression (n = 919,164, pseudo-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>R</mi><mn>2</mn></msup><annotation encoding="application/x-tex">R^2</annotation></semantics></math> = 0.226; Figure <a href="#fig:stats">5</a>d) confirms the ranking. Relative to fine-tunes, the odds of being active are 14.68 times higher for quantisations (95% CI 9.70–22.22), 7.32 for adapters and 4.01 for merges. They fall with generation (0.77 for generation two, 0.52 for three or more) and rise with uploader size (1.34 per tenfold) and age (1.72 per tenfold); having several parents has no clear effect (2.45, CI 0.92–6.56).</p>
+<p>Within the 1,107 families with at least 50 descendants, descendants collect a median 23.5% of the family’s downloads, and in 25.0% of families at least one child out-downloads its root. Reproduction and use are related but not aligned: the rank correlation between a parent’s number of children and its downloads is 0.47 among 6,139 parents with at least ten children, and 11.7% of the 894 bases with at least 100 children owe 90% or more of them to adapters, typically tutorial defaults rather than widely used models.</p>
+<figure>
+<img loading="lazy" alt="Statistics. (a) Complementary CDF of family sizes with the fitted power law. (b) Cumulative distribution of the parent-to-child lag by relation. (c) Median reaction time by release cohort with interquartile ranges. (d) Odds ratios of being downloaded in the last 30 days (super-family indicators omitted from the plot)." src="figures/f6.jpg" />
+<figcaption><span id="fig:stats"><strong>Figure 5.</strong></span> <strong>Statistics.</strong> (a) Complementary CDF of family sizes with the fitted power law. (b) Cumulative distribution of the parent-to-child lag by relation. (c) Median reaction time by release cohort with interquartile ranges. (d) Odds ratios of being downloaded in the last 30 days (super-family indicators omitted from the plot).</figcaption>
+</figure>
+<h2 data-number="6.5" id="speciation-rq5"><span class="header-section-number">6.5</span> Speciation (<strong>RQ5</strong>)</h2>
+<p>Of the 485,259 edges whose two endpoints have a known task, 18.7% cross a task group (95% CI 11.7%–27.7%), and 22.1% change the exact pipeline tag (Figure <a href="#fig:chord">6</a>). Fine-tunes speciate most (28.5%), followed by quantisations (11.8%) and adapters (9.2%); merges rarely do (2.7%). The single largest route is fill-mask to text classification (35,171 edges, 32.7% of all pipeline changes), followed by vision–language to text generation (14,898) and fill-mask to token classification (8,760). By parent task, 92.9% of edges from fill-mask models change task and 30.9% from embedding and ranking models, against 4.8% for text generation and 1.0% for image and video generation: generative lineages rarely speciate. Formats migrate too: 24.2% of the 131,172 quantised edges with known libraries change library, led by Transformers to MLX (8,794) and to GGUF (4,175).</p>
+<figure>
+<img loading="lazy" alt="Speciation. Task changes along parent–child edges; ribbons leave the parent’s task and land on the child’s, with width proportional to the number of edges." src="figures/f3.jpg" />
+<figcaption><span id="fig:chord"><strong>Figure 6.</strong></span> <strong>Speciation.</strong> Task changes along parent–child edges; ribbons leave the parent’s task and land on the child’s, with width proportional to the number of edges.</figcaption>
+</figure>
+<h2 data-number="6.6" id="robustness"><span class="header-section-number">6.6</span> Robustness</h2>
+<p>Table <a href="#tab:robust">3</a> repeats five headline metrics under four alternative specifications. Concentration, speciation and dormancy keep their magnitude and direction in every case, and the conclusions above do not depend on the primary-parent rule.</p>
+<div class="tbl"><p class="tcap"><span id="tab:robust"><strong>Table 3.</strong></span> Headline metrics under alternative specifications: Gini and top-10 share of family sizes, speciation rate, median fine-tune lag (days) and dormant share.</p><div class="tscroll"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Specification</th>
+<th style="text-align: right;">Gini</th>
+<th style="text-align: right;">Top-10</th>
+<th style="text-align: right;">Speciation</th>
+<th style="text-align: right;">Lag (d)</th>
+<th style="text-align: right;">Dormant</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Main specification</td>
+<td style="text-align: right;">0.88</td>
+<td style="text-align: right;">23.3%</td>
+<td style="text-align: right;">18.7%</td>
+<td style="text-align: right;">247.6</td>
+<td style="text-align: right;">12.4%</td>
+</tr>
+<tr>
+<td style="text-align: left;">First-listed primary parent</td>
+<td style="text-align: right;">0.88</td>
+<td style="text-align: right;">23.1%</td>
+<td style="text-align: right;">18.7%</td>
+<td style="text-align: right;">247.6</td>
+<td style="text-align: right;">12.4%</td>
+</tr>
+<tr>
+<td style="text-align: left;">Without quantised models</td>
+<td style="text-align: right;">0.92</td>
+<td style="text-align: right;">28.7%</td>
+<td style="text-align: right;">20.4%</td>
+<td style="text-align: right;">247.6</td>
+<td style="text-align: right;">15.1%</td>
+</tr>
+<tr>
+<td style="text-align: left;">Without top 1% uploaders</td>
+<td style="text-align: right;">0.88</td>
+<td style="text-align: right;">21.1%</td>
+<td style="text-align: right;">22.4%</td>
+<td style="text-align: right;">229.7</td>
+<td style="text-align: right;">17.6%</td>
+</tr>
+<tr>
+<td style="text-align: left;">Last 24 months only</td>
+<td style="text-align: right;">0.86</td>
+<td style="text-align: right;">20.8%</td>
+<td style="text-align: right;">17.6%</td>
+<td style="text-align: right;">275.6</td>
+<td style="text-align: right;">15.0%</td>
+</tr>
+</tbody>
+</table></div></div>
+<h1 data-number="7" id="discussion"><span class="header-section-number">7</span> Discussion</h1>
+<h4 id="a-few-bases-carry-the-ecosystem.">A few bases carry the ecosystem.</h4>
+<p>With 74.8% of all connected models below the top 1% of roots, an evaluation, audit or safety fix applied to a handful of bases reaches most of the Hub’s derivatives, and a defect in one of them propagates just as far. Lineage metadata is what makes such propagation traceable.</p>
+<h4 id="derivatives-arrive-in-days.">Derivatives arrive in days.</h4>
+<p>Fine-tunes and quantisations of a major release now appear within days, faster every half-year. Release processes, evaluations and responsible-use guidance should assume that derivatives exist almost immediately; quantisers have become distribution infrastructure, and their builds are the most used derivatives of all.</p>
+<h4 id="merging-is-in-breeding-and-increasingly-automated.">Merging is in-breeding and increasingly automated.</h4>
+<p>Merges overwhelmingly combine relatives, and automated pipelines produce chains up to 142 merges deep. Such chains make provenance hard to reason about without tooling, and they are where license and safety obligations are most likely to be lost.</p>
+<h4 id="speciation-follows-architecture.">Speciation follows architecture.</h4>
+<p>Encoders are starting points that are almost always re-purposed, while generative models are mostly specialised within their task. Vision–language bases routinely give rise to text-only descendants.</p>
+<h4 id="implications-for-platforms.">Implications for platforms.</h4>
+<p>Platforms could validate declarations at upload (cycles, children older than their parents), surface ghost parents, rank search results with lineage-aware signals, and propagate notices such as deprecations or vulnerability reports down a lineage.</p>
+<h1 data-number="8" id="sec:threats"><span class="header-section-number">8</span> Threats to validity</h1>
+<h4 id="construct.">Construct.</h4>
+<p>We observe declared ancestry only: 28.6% of models declare a parent, so all counts are lower bounds, and relation labels may be inferred or wrong. Family keys rely on a naming heuristic. Download counts follow the Hub’s counting conventions and include automated traffic.</p>
+<h4 id="internal.">Internal.</h4>
+<p>Creation time is not release time, pre-2022 dates are backfilled, and 0.4% of lags are negative. The acceleration of reaction times could partly reflect the adoption of declarations; restricting the test to bases released from 2024 onwards preserves the trend.</p>
+<h4 id="external.">External.</h4>
+<p>We study one platform at one point in time through a third-party rebuild of its metadata; our reconstruction applies its own cleaning rules and may differ slightly from the upstream summaries.</p>
+<h1 data-number="9" id="sec:ethics"><span class="header-section-number">9</span> Ethics, limitations and future work</h1>
+<p>We use public metadata only, report individual accounts anonymously, and make no judgement about the legality of any model. The main limitation is the missing license metadata, which prevented the license-drift analysis of our original design. That analysis would map each declared license to a class (permissive, copyleft, use-restricted, vendor-specific, non-commercial, no-derivatives) whose obligations flow down the lineage; a derivative is inconsistent when its declared license drops an inherited obligation, and inconsistencies can be split into those introduced at an edge and those inherited from an inconsistent parent. The lineage graph, primary tree and propagation code are in place; only per-model license tags, available from the Hub’s model metadata, are needed.</p>
+<h1 data-number="10" id="conclusion"><span class="header-section-number">10</span> Conclusion</h1>
+<p>The Hugging Face Hub has grown a family tree of 965,292 connected models. It is dominated by a few giant lineages, reproduces fastest through quantisation, hybridises mostly within families, and speciates mainly where encoders become task models. Reading the Hub as a phylogeny turns scattered metadata into a map of how open models actually spread.</p>
+<h4 id="data-and-code-availability.">Data and code availability.</h4>
+<p>The analysis pipeline, derived tables and figure scripts accompany this draft. The lineage data are from the Open Model Family Tree [<a href="#ref-h9tec2026">9</a>] under CC BY 4.0, derived from Hub metadata via <code>hub-stats</code> [<a href="#ref-hubstats">7</a>].</p>
+<h4 id="acknowledgements.">Acknowledgements.</h4>
+<p>The data pipeline, figures and first draft of this paper were produced with the assistance of Claude (Anthropic), an AI system, under the direction of the author(s), who are responsible for verifying all content.</p>
+<h1 class="unnumbered" id="references">References</h1>
+<p id="ref-alstott2014">[1] J. Alstott, E. Bullmore and D. Plenz. powerlaw: a Python package for analysis of heavy-tailed distributions. <em>PLoS ONE</em>, 9(1):e85777, 2014.</p>
+<p id="ref-bostock2011">[2] M. Bostock, V. Ogievetsky and J. Heer. D<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi></mi><mn>3</mn></msup><annotation encoding="application/x-tex">^3</annotation></semantics></math>: Data-driven documents. <em>IEEE Transactions on Visualization and Computer Graphics</em>, 17(12):2301–2309, 2011.</p>
+<p id="ref-byron2008">[3] L. Byron and M. Wattenberg. Stacked graphs: geometry &amp; aesthetics. <em>IEEE Transactions on Visualization and Computer Graphics</em>, 14(6):1245–1252, 2008.</p>
+<p id="ref-clauset2009">[4] A. Clauset, C. R. Shalizi and M. E. J. Newman. Power-law distributions in empirical data. <em>SIAM Review</em>, 51(4):661–703, 2009.</p>
+<p id="ref-csardi2006">[5] G. Csárdi and T. Nepusz. The igraph software package for complex network research. <em>InterJournal, Complex Systems</em>, 1695, 2006.</p>
+<p id="ref-efron1993">[6] B. Efron and R. J. Tibshirani. <em>An Introduction to the Bootstrap</em>. Chapman &amp; Hall, 1993.</p>
+<p id="ref-hubstats">[7] cfahlgren1. <code>hub-stats</code>: daily dumps of Hugging Face Hub metadata. Dataset <code>cfahlgren1/hub-stats</code> on the Hugging Face Hub (Apache-2.0), as referenced by [<a href="#ref-h9tec2026">9</a>].</p>
+<p id="ref-harris2020">[8] C. R. Harris et al. Array programming with NumPy. <em>Nature</em>, 585:357–362, 2020.</p>
+<p id="ref-h9tec2026">[9] h9-tec. Open Model Family Tree. GitHub repository <a href="https://github.com/h9-tec/model-family-tree" class="uri">https://github.com/h9-tec/model-family-tree</a>, release <code>data-latest</code> (snapshot 2026-11-05, accessed 6 November 2026). Data CC BY 4.0.</p>
+<p id="ref-holten2006">[10] D. Holten. Hierarchical edge bundles: visualization of adjacency relations in hierarchical data. <em>IEEE Transactions on Visualization and Computer Graphics</em>, 12(5):741–748, 2006.</p>
+<p id="ref-seabold2010">[11] S. Seabold and J. Perktold. statsmodels: Econometric and statistical modeling with Python. In <em>Proceedings of the 9th Python in Science Conference</em>, 2010.</p>
+<h1 data-number="11" id="app:A"><span class="header-section-number">A</span> References to find</h1>
+<p>Bracketed <span class="todocite">[CITE]</span> markers are placeholders for related work that must be located and verified before submission. Suggested searches: Hugging Face Hub documentation on <code>base_model</code> and model trees; empirical studies of pre-trained model reuse, documentation and supply chains on Hugging Face; “model atlas” and family-tree analyses of the Hub; license compliance and license inconsistency in machine-learning models and datasets.</p>
+<h1 data-number="12" id="app:B"><span class="header-section-number">B</span> Numbers ledger</h1>
+<p>Every number in the text is a macro generated from <code>results/results.json</code> by <code>src/make_macros.py</code>; Tables <a href="#tab:gen">1</a>–<a href="#tab:robust">3</a> are generated from the same file.</p>
+<div class="tscroll"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Macro</th>
+<th style="text-align: right;">Value</th>
+<th style="text-align: left;">Source key in <code>results.json</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>\nModelsHub</code></td>
+<td style="text-align: right;">3,213,043</td>
+<td style="text-align: left;"><code>overview.n_models_hub</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nConnected</code></td>
+<td style="text-align: right;">965,292</td>
+<td style="text-align: left;"><code>overview.n_connected</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctConnected</code></td>
+<td style="text-align: right;">30.0%</td>
+<td style="text-align: left;"><code>overview.share_connected</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nChildren</code></td>
+<td style="text-align: right;">919,442</td>
+<td style="text-align: left;"><code>overview.n_children</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctDeclare</code></td>
+<td style="text-align: right;">28.6%</td>
+<td style="text-align: left;"><code>overview.share_declare_parent</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nEdges</code></td>
+<td style="text-align: right;">952,646</td>
+<td style="text-align: left;"><code>overview.n_edges</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nRoots</code></td>
+<td style="text-align: right;">45,849</td>
+<td style="text-align: left;"><code>overview.n_roots</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nGhost</code></td>
+<td style="text-align: right;">3,969</td>
+<td style="text-align: left;"><code>overview.n_ghost</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nFamilies</code></td>
+<td style="text-align: right;">24,596</td>
+<td style="text-align: left;"><code>overview.n_families</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nAuthors</code></td>
+<td style="text-align: right;">160,374</td>
+<td style="text-align: left;"><code>overview.n_authors_connected</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nFinetune</code></td>
+<td style="text-align: right;">367,086</td>
+<td style="text-align: left;"><code>overview.children_by_relation.finetune</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nAdapter</code></td>
+<td style="text-align: right;">338,228</td>
+<td style="text-align: left;"><code>overview.children_by_relation.adapter</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nQuantized</code></td>
+<td style="text-align: right;">198,649</td>
+<td style="text-align: left;"><code>overview.children_by_relation.quantized</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nMergeKids</code></td>
+<td style="text-align: right;">15,441</td>
+<td style="text-align: left;"><code>overview.children_by_relation.merge</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctFinetune</code></td>
+<td style="text-align: right;">39.9%</td>
+<td style="text-align: left;"><code>overview.share_children_by_relation.finetune</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctAdapter</code></td>
+<td style="text-align: right;">36.8%</td>
+<td style="text-align: left;"><code>overview.share_children_by_relation.adapter</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctQuantized</code></td>
+<td style="text-align: right;">21.6%</td>
+<td style="text-align: left;"><code>overview.share_children_by_relation.quantized</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctMerge</code></td>
+<td style="text-align: right;">1.7%</td>
+<td style="text-align: left;"><code>overview.share_children_by_relation.merge</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nMergeEdges</code></td>
+<td style="text-align: right;">48,633</td>
+<td style="text-align: left;"><code>overview.edges_by_relation.merge</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nRawEdges</code></td>
+<td style="text-align: right;">952,659</td>
+<td style="text-align: left;"><code>build.n_edges_raw</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nDupRows</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;"><code>build.duplicate_node_rows_dropped</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nRescued</code></td>
+<td style="text-align: right;">2,304</td>
+<td style="text-align: left;"><code>build.parents_rescued_case_insensitive</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nCycleNodes</code></td>
+<td style="text-align: right;">110</td>
+<td style="text-align: left;"><code>build.cycle_nodes_initial</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nCycleEdges</code></td>
+<td style="text-align: right;">13</td>
+<td style="text-align: left;"><code>build.cycle_edges_removed</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\backfillDate</code></td>
+<td style="text-align: right;">2022-03-02</td>
+<td style="text-align: left;"><code>build.backfill_date</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nBackfill</code></td>
+<td style="text-align: right;">29,557</td>
+<td style="text-align: left;"><code>build.backfill_date_n</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nPrimaryChanged</code></td>
+<td style="text-align: right;">8,543</td>
+<td style="text-align: left;"><code>build.primary_changed_vs_first_listed</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\familyMedian</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;"><code>rq1.root_family_size_median</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\familyMean</code></td>
+<td style="text-align: right;">21.1</td>
+<td style="text-align: left;"><code>rq1.root_family_size_mean</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\familyMax</code></td>
+<td style="text-align: right;">43,716</td>
+<td style="text-align: left;"><code>rq1.root_family_size_max</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctRootsSmall</code></td>
+<td style="text-align: right;">71.4%</td>
+<td style="text-align: left;"><code>rq1.share_roots_size_le_3</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctTopTenRoots</code></td>
+<td style="text-align: right;">23.2%</td>
+<td style="text-align: left;"><code>rq1.top10_roots_share_of_connected</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nTopOnePctRoots</code></td>
+<td style="text-align: right;">458</td>
+<td style="text-align: left;"><code>rq1.top1pct_roots_n</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctTopOnePctRoots</code></td>
+<td style="text-align: right;">74.8%</td>
+<td style="text-align: left;"><code>rq1.top1pct_roots_share_of_connected</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\giniFamily</code></td>
+<td style="text-align: right;">0.88</td>
+<td style="text-align: left;"><code>rq1.gini_root_family_size</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctTopTenKeys</code></td>
+<td style="text-align: right;">42.7%</td>
+<td style="text-align: left;"><code>rq1.top10_family_keys_share</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nQwenTwoFive</code></td>
+<td style="text-align: right;">71,641</td>
+<td style="text-align: left;"><code>rq1.top10_family_keys.qwen2.5</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\plAlpha</code></td>
+<td style="text-align: right;">1.73</td>
+<td style="text-align: left;"><code>rq1.powerlaw_alpha</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\plXmin</code></td>
+<td style="text-align: right;">11</td>
+<td style="text-align: left;"><code>rq1.powerlaw_xmin</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\plNtail</code></td>
+<td style="text-align: right;">3,502</td>
+<td style="text-align: left;"><code>rq1.powerlaw_n_tail</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\plLnR</code></td>
+<td style="text-align: right;">-1.02</td>
+<td style="text-align: left;"><code>rq1.pl_vs_lognormal_R</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\plLnP</code></td>
+<td style="text-align: right;">0.31</td>
+<td style="text-align: left;"><code>rq1.pl_vs_lognormal_p</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\plExR</code></td>
+<td style="text-align: right;">14.4</td>
+<td style="text-align: left;"><code>rq1.pl_vs_exponential_R</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\plExP</code></td>
+<td style="text-align: right;">&lt;0.001</td>
+<td style="text-align: left;"><code>rq1.pl_vs_exponential_p</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctDepthOne</code></td>
+<td style="text-align: right;">66.0%</td>
+<td style="text-align: left;"><code>rq1.depth_share_1</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctDepthThree</code></td>
+<td style="text-align: right;">13.1%</td>
+<td style="text-align: left;"><code>rq1.depth_share_ge3</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\depthPnn</code></td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;"><code>rq1.depth_p99</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\depthMax</code></td>
+<td style="text-align: right;">39</td>
+<td style="text-align: left;"><code>rq1.depth_max</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\ldepthMax</code></td>
+<td style="text-align: right;">151</td>
+<td style="text-align: left;"><code>rq1.ldepth_max</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\outdegMedian</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;"><code>rq1.outdeg_median</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\outdegPnn</code></td>
+<td style="text-align: right;">99</td>
+<td style="text-align: left;"><code>rq1.outdeg_p99</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\outdegMax</code></td>
+<td style="text-align: right;">43,436</td>
+<td style="text-align: left;"><code>rq1.outdeg_max</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctLeaves</code></td>
+<td style="text-align: right;">95.1%</td>
+<td style="text-align: left;"><code>rq1.share_children_leaves</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctLeafFinetune</code></td>
+<td style="text-align: right;">91.6%</td>
+<td style="text-align: left;"><code>rq1.leaf_share_by_relation.finetune</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctLeafAdapter</code></td>
+<td style="text-align: right;">99.3%</td>
+<td style="text-align: left;"><code>rq1.leaf_share_by_relation.adapter</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctLeafQuantized</code></td>
+<td style="text-align: right;">98.4%</td>
+<td style="text-align: left;"><code>rq1.leaf_share_by_relation.quantized</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctLeafMerge</code></td>
+<td style="text-align: right;">43.6%</td>
+<td style="text-align: left;"><code>rq1.leaf_share_by_relation.merge</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nUnderGhost</code></td>
+<td style="text-align: right;">20,056</td>
+<td style="text-align: left;"><code>rq1.nodes_under_ghost_roots</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctUnderGhost</code></td>
+<td style="text-align: right;">2.1%</td>
+<td style="text-align: left;"><code>rq1.share_nodes_under_ghost_roots</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nQwenSuper</code></td>
+<td style="text-align: right;">251,278</td>
+<td style="text-align: left;"><code>rq1.super_family_sizes.Qwen</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nHybrids</code></td>
+<td style="text-align: right;">15,208</td>
+<td style="text-align: left;"><code>rq2.n_hybrids</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nMergeLabelled</code></td>
+<td style="text-align: right;">15,441</td>
+<td style="text-align: left;"><code>rq2.n_merge_labelled</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctMergeMulti</code></td>
+<td style="text-align: right;">98.5%</td>
+<td style="text-align: left;"><code>rq2.share_merge_labelled_multi_parent</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nTwoParents</code></td>
+<td style="text-align: right;">8,845</td>
+<td style="text-align: left;"><code>rq2.parents_per_hybrid.2</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\maxParents</code></td>
+<td style="text-align: right;">100</td>
+<td style="text-align: left;"><code>rq2.parents_per_hybrid_max</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nPairs</code></td>
+<td style="text-align: right;">114,989</td>
+<td style="text-align: left;"><code>rq2.n_parent_pairs</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctBackcross</code></td>
+<td style="text-align: right;">11.9%</td>
+<td style="text-align: left;"><code>rq2.kinship_share.backcross</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctSibling</code></td>
+<td style="text-align: right;">10.8%</td>
+<td style="text-align: left;"><code>rq2.kinship_share.sibling</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctCousin</code></td>
+<td style="text-align: right;">16.3%</td>
+<td style="text-align: left;"><code>rq2.kinship_share.cousin</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctOutcross</code></td>
+<td style="text-align: right;">61.0%</td>
+<td style="text-align: left;"><code>rq2.kinship_share.outcross</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctRelated</code></td>
+<td style="text-align: right;">39.0%</td>
+<td style="text-align: left;"><code>rq2.related_share</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctCrossFamily</code></td>
+<td style="text-align: right;">51.1%</td>
+<td style="text-align: left;"><code>rq2.cross_family_pair_share</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctCrossSuper</code></td>
+<td style="text-align: right;">31.1%</td>
+<td style="text-align: left;"><code>rq2.cross_super_family_pair_share</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctNullRelated</code></td>
+<td style="text-align: right;">2.1%</td>
+<td style="text-align: left;"><code>rq2.null_related_share_mean</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctNullCross</code></td>
+<td style="text-align: right;">95.0%</td>
+<td style="text-align: left;"><code>rq2.null_cross_family_share_mean</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\assortRatio</code></td>
+<td style="text-align: right;">18.4</td>
+<td style="text-align: left;"><code>rq2.assortativity_ratio_related</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\permP</code></td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: left;"><code>rq2.perm_p_related</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\hybDepthMax</code></td>
+<td style="text-align: right;">142</td>
+<td style="text-align: left;"><code>rq2.hybrid_depth_max</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nDeepHybrid</code></td>
+<td style="text-align: right;">4,787</td>
+<td style="text-align: left;"><code>rq2.n_nodes_hybrid_depth_ge10</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nDeepAuthors</code></td>
+<td style="text-align: right;">258</td>
+<td style="text-align: left;"><code>rq2.authors_hybrid_depth_ge10</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctDeepTopAuthor</code></td>
+<td style="text-align: right;">38.4%</td>
+<td style="text-align: left;"><code>rq2.top_author_share_hybrid_depth_ge10</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\ancMax</code></td>
+<td style="text-align: right;">522</td>
+<td style="text-align: left;"><code>rq2.anc_size_max</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\outcrossLo</code></td>
+<td style="text-align: right;">53.0%</td>
+<td style="text-align: left;"><code>rq2.outcross_ci.0</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\outcrossHi</code></td>
+<td style="text-align: right;">75.3%</td>
+<td style="text-align: left;"><code>rq2.outcross_ci.1</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nLagEdges</code></td>
+<td style="text-align: right;">832,903</td>
+<td style="text-align: left;"><code>rq3.edges_valid_for_lag</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctNegLag</code></td>
+<td style="text-align: right;">0.4%</td>
+<td style="text-align: left;"><code>rq3.share_negative_lag</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\lagFinetune</code></td>
+<td style="text-align: right;">247.6</td>
+<td style="text-align: left;"><code>rq3.lag_finetune.median_days</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\lagAdapter</code></td>
+<td style="text-align: right;">231.2</td>
+<td style="text-align: left;"><code>rq3.lag_adapter.median_days</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\lagQuantized</code></td>
+<td style="text-align: right;">30.5</td>
+<td style="text-align: left;"><code>rq3.lag_quantized.median_days</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\lagMerge</code></td>
+<td style="text-align: right;">49.6</td>
+<td style="text-align: left;"><code>rq3.lag_merge.median_days</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctQuantDay</code></td>
+<td style="text-align: right;">18.6%</td>
+<td style="text-align: left;"><code>rq3.lag_quantized.share_within_1d</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctQuantWeek</code></td>
+<td style="text-align: right;">35.7%</td>
+<td style="text-align: left;"><code>rq3.lag_quantized.share_within_7d</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctQuantMonth</code></td>
+<td style="text-align: right;">49.8%</td>
+<td style="text-align: left;"><code>rq3.lag_quantized.share_within_30d</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctFinetuneWeek</code></td>
+<td style="text-align: right;">8.3%</td>
+<td style="text-align: left;"><code>rq3.lag_finetune.share_within_7d</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctMergeMonth</code></td>
+<td style="text-align: right;">40.6%</td>
+<td style="text-align: left;"><code>rq3.lag_merge.share_within_30d</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nMajorBases</code></td>
+<td style="text-align: right;">701</td>
+<td style="text-align: left;"><code>rq3.n_major_bases</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\rtFinetuneEarly</code></td>
+<td style="text-align: right;">35.1</td>
+<td style="text-align: left;"><code>rq3.reaction_median_days_by_half.2023H2.finetune</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\rtFinetuneLate</code></td>
+<td style="text-align: right;">2.8</td>
+<td style="text-align: left;"><code>rq3.reaction_median_days_by_half.2026H1.finetune</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\rtQuantEarly</code></td>
+<td style="text-align: right;">13.6</td>
+<td style="text-align: left;"><code>rq3.reaction_median_days_by_half.2023H2.quantized</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\rtQuantLate</code></td>
+<td style="text-align: right;">2.8</td>
+<td style="text-align: left;"><code>rq3.reaction_median_days_by_half.2026H1.quantized</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\rtAdapterEarly</code></td>
+<td style="text-align: right;">35.0</td>
+<td style="text-align: left;"><code>rq3.reaction_median_days_by_half.2023H2.adapter</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\rtAdapterLate</code></td>
+<td style="text-align: right;">8.2</td>
+<td style="text-align: left;"><code>rq3.reaction_median_days_by_half.2026H1.adapter</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\rtQuantAll</code></td>
+<td style="text-align: right;">6.6</td>
+<td style="text-align: left;"><code>rq3.reaction_trend_quantized.median_days</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\rtFinetuneAll</code></td>
+<td style="text-align: right;">7.2</td>
+<td style="text-align: left;"><code>rq3.reaction_trend_finetune.median_days</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\rtAdapterAll</code></td>
+<td style="text-align: right;">29.4</td>
+<td style="text-align: left;"><code>rq3.reaction_trend_adapter.median_days</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\rtMergeAll</code></td>
+<td style="text-align: right;">29.0</td>
+<td style="text-align: left;"><code>rq3.reaction_trend_merge.median_days</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\rhoFinetuneAll</code></td>
+<td style="text-align: right;">-0.42</td>
+<td style="text-align: left;"><code>rq3.reaction_trend_finetune.spearman_rho</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\rhoQuantAll</code></td>
+<td style="text-align: right;">-0.29</td>
+<td style="text-align: left;"><code>rq3.reaction_trend_quantized.spearman_rho</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\rhoFinetune</code></td>
+<td style="text-align: right;">-0.31</td>
+<td style="text-align: left;"><code>rq3.reaction_trend_finetune_since2024.spearman_rho</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nRhoFinetune</code></td>
+<td style="text-align: right;">559</td>
+<td style="text-align: left;"><code>rq3.reaction_trend_finetune_since2024.n</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\rhoQuant</code></td>
+<td style="text-align: right;">-0.21</td>
+<td style="text-align: left;"><code>rq3.reaction_trend_quantized_since2024.spearman_rho</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nRhoQuant</code></td>
+<td style="text-align: right;">549</td>
+<td style="text-align: left;"><code>rq3.reaction_trend_quantized_since2024.n</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\rhoAdapter</code></td>
+<td style="text-align: right;">-0.27</td>
+<td style="text-align: left;"><code>rq3.reaction_trend_adapter_since2024.spearman_rho</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\rhoMerge</code></td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: left;"><code>rq3.reaction_trend_merge_since2024.spearman_rho</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pRhoMerge</code></td>
+<td style="text-align: right;">0.42</td>
+<td style="text-align: left;"><code>rq3.reaction_trend_merge_since2024.p</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nDecayBases</code></td>
+<td style="text-align: right;">600</td>
+<td style="text-align: left;"><code>rq3.n_bases_decay</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctFirstMonth</code></td>
+<td style="text-align: right;">7.3%</td>
+<td style="text-align: left;"><code>rq3.decay_share_first30d_median</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\halfLife</code></td>
+<td style="text-align: right;">141.6</td>
+<td style="text-align: left;"><code>rq3.decay_halflife_days_median</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\birthsPeakMonth</code></td>
+<td style="text-align: right;">September 2024</td>
+<td style="text-align: left;"><code>rq3.births_peak_month</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\birthsPeakCount</code></td>
+<td style="text-align: right;">78,224</td>
+<td style="text-align: left;"><code>rq3.births_peak_count</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\birthsTwentyThree</code></td>
+<td style="text-align: right;">34,075</td>
+<td style="text-align: left;"><code>rq3.births_by_year.2023</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\birthsTwentyFour</code></td>
+<td style="text-align: right;">283,534</td>
+<td style="text-align: left;"><code>rq3.births_by_year.2024</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\birthsTwentyFive</code></td>
+<td style="text-align: right;">304,015</td>
+<td style="text-align: left;"><code>rq3.births_by_year.2025</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\birthsTwentySix</code></td>
+<td style="text-align: right;">292,438</td>
+<td style="text-align: left;"><code>rq3.births_by_year.2026</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nUploaders</code></td>
+<td style="text-align: right;">153,804</td>
+<td style="text-align: left;"><code>rq3.n_uploaders_children</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctTopTenUploaders</code></td>
+<td style="text-align: right;">13.7%</td>
+<td style="text-align: left;"><code>rq3.share_children_top10_uploaders</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctTopHundredUploaders</code></td>
+<td style="text-align: right;">29.3%</td>
+<td style="text-align: left;"><code>rq3.share_children_top100_uploaders</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\giniUploaders</code></td>
+<td style="text-align: right;">0.77</td>
+<td style="text-align: left;"><code>rq3.gini_children_per_uploader</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctPeakTopUploader</code></td>
+<td style="text-align: right;">7.9%</td>
+<td style="text-align: left;"><code>rq3.peak_month_top_uploader_share</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\peakSuper</code></td>
+<td style="text-align: right;">Qwen</td>
+<td style="text-align: left;"><code>rq3.peak_month_top_super</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nTopUploaders</code></td>
+<td style="text-align: right;">1,603</td>
+<td style="text-align: left;"><code>robustness.top1pct_uploaders_n</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctTopUploaders</code></td>
+<td style="text-align: right;">52.5%</td>
+<td style="text-align: left;"><code>robustness.top1pct_uploaders_share_children</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctZeroAll</code></td>
+<td style="text-align: right;">11.4%</td>
+<td style="text-align: left;"><code>rq4.share_children_zero_downloads_all</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctDormant</code></td>
+<td style="text-align: right;">12.4%</td>
+<td style="text-align: left;"><code>rq4.share_children_dormant_30d</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\dormantLo</code></td>
+<td style="text-align: right;">9.6%</td>
+<td style="text-align: left;"><code>rq4.dormant_ci.0</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\dormantHi</code></td>
+<td style="text-align: right;">15.6%</td>
+<td style="text-align: left;"><code>rq4.dormant_ci.1</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctDormantFinetune</code></td>
+<td style="text-align: right;">25.2%</td>
+<td style="text-align: left;"><code>rq4.dormant_by_relation.finetune</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctDormantAdapter</code></td>
+<td style="text-align: right;">4.6%</td>
+<td style="text-align: left;"><code>rq4.dormant_by_relation.adapter</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctDormantQuantized</code></td>
+<td style="text-align: right;">2.7%</td>
+<td style="text-align: left;"><code>rq4.dormant_by_relation.quantized</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctDormantMerge</code></td>
+<td style="text-align: right;">5.2%</td>
+<td style="text-align: left;"><code>rq4.dormant_by_relation.merge</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\dlFinetune</code></td>
+<td style="text-align: right;">53</td>
+<td style="text-align: left;"><code>rq4.median_downloads_all_by_relation.finetune</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\dlAdapter</code></td>
+<td style="text-align: right;">22</td>
+<td style="text-align: left;"><code>rq4.median_downloads_all_by_relation.adapter</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\dlQuantized</code></td>
+<td style="text-align: right;">938</td>
+<td style="text-align: left;"><code>rq4.median_downloads_all_by_relation.quantized</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\dlMerge</code></td>
+<td style="text-align: right;">152</td>
+<td style="text-align: left;"><code>rq4.median_downloads_all_by_relation.merge</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\totalChildDownloads</code></td>
+<td style="text-align: right;">17.0 billion</td>
+<td style="text-align: left;"><code>rq4.children_downloads_all_total</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctTopDownloads</code></td>
+<td style="text-align: right;">95.9%</td>
+<td style="text-align: left;"><code>rq4.share_child_downloads_top1pct</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\giniDownloads</code></td>
+<td style="text-align: right;">0.993</td>
+<td style="text-align: left;"><code>rq4.gini_child_downloads_all</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nBigFamilies</code></td>
+<td style="text-align: right;">1,107</td>
+<td style="text-align: left;"><code>rq4.n_big_families</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctDescShare</code></td>
+<td style="text-align: right;">23.5%</td>
+<td style="text-align: left;"><code>rq4.family_download_share_descendants_median</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctOutgrow</code></td>
+<td style="text-align: right;">25.0%</td>
+<td style="text-align: left;"><code>rq4.share_families_child_outgrows_root</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\rhoKids</code></td>
+<td style="text-align: right;">0.47</td>
+<td style="text-align: left;"><code>rq4.spearman_children_vs_downloads.rho</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nRhoKids</code></td>
+<td style="text-align: right;">6,139</td>
+<td style="text-align: left;"><code>rq4.spearman_children_vs_downloads.n</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nBasesHundred</code></td>
+<td style="text-align: right;">894</td>
+<td style="text-align: left;"><code>rq4.n_bases_ge100</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctAdapterDominated</code></td>
+<td style="text-align: right;">11.7%</td>
+<td style="text-align: left;"><code>rq4.share_bases_adapter_dominated</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nLogit</code></td>
+<td style="text-align: right;">919,164</td>
+<td style="text-align: left;"><code>rq4.logit_n</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pseudoRsq</code></td>
+<td style="text-align: right;">0.226</td>
+<td style="text-align: left;"><code>rq4.logit_pseudo_r2</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nTaskEdges</code></td>
+<td style="text-align: right;">485,259</td>
+<td style="text-align: left;"><code>rq5.edges_with_both_tasks</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctSpeciation</code></td>
+<td style="text-align: right;">18.7%</td>
+<td style="text-align: left;"><code>rq5.speciation_rate</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\specLo</code></td>
+<td style="text-align: right;">11.7%</td>
+<td style="text-align: left;"><code>rq5.speciation_ci.0</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\specHi</code></td>
+<td style="text-align: right;">27.7%</td>
+<td style="text-align: left;"><code>rq5.speciation_ci.1</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctSpecFinetune</code></td>
+<td style="text-align: right;">28.5%</td>
+<td style="text-align: left;"><code>rq5.speciation_by_relation.finetune</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctSpecAdapter</code></td>
+<td style="text-align: right;">9.2%</td>
+<td style="text-align: left;"><code>rq5.speciation_by_relation.adapter</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctSpecQuantized</code></td>
+<td style="text-align: right;">11.8%</td>
+<td style="text-align: left;"><code>rq5.speciation_by_relation.quantized</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctSpecMerge</code></td>
+<td style="text-align: right;">2.7%</td>
+<td style="text-align: left;"><code>rq5.speciation_by_relation.merge</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctPipelineChange</code></td>
+<td style="text-align: right;">22.1%</td>
+<td style="text-align: left;"><code>rq5.pipeline_change_rate</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nFillMaskClass</code></td>
+<td style="text-align: right;">35,171</td>
+<td style="text-align: left;"><code>rq5.top_pipeline_transitions.0.n</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctTopTransition</code></td>
+<td style="text-align: right;">32.7%</td>
+<td style="text-align: left;"><code>rq5.top_transition_share_of_changes</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nVlmText</code></td>
+<td style="text-align: right;">14,898</td>
+<td style="text-align: left;"><code>rq5.top_pipeline_transitions.1.n</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nFillMaskToken</code></td>
+<td style="text-align: right;">8,760</td>
+<td style="text-align: left;"><code>rq5.top_pipeline_transitions.2.n</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctSpecFillMask</code></td>
+<td style="text-align: right;">92.9%</td>
+<td style="text-align: left;"><code>rq5.speciation_by_source_task.Fill-mask.rate</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctSpecEmbed</code></td>
+<td style="text-align: right;">30.9%</td>
+<td style="text-align: left;"><code>rq5.speciation_by_source_task.Embeddings &amp; ranking.rate</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctSpecTextGen</code></td>
+<td style="text-align: right;">4.8%</td>
+<td style="text-align: left;"><code>rq5.speciation_by_source_task.Text generation.rate</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctSpecImageGen</code></td>
+<td style="text-align: right;">1.0%</td>
+<td style="text-align: left;"><code>rq5.speciation_by_source_task.Image &amp; video generation.rate</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nQuantLib</code></td>
+<td style="text-align: right;">131,172</td>
+<td style="text-align: left;"><code>rq5.quantized_edges_with_library</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctLibChange</code></td>
+<td style="text-align: right;">24.2%</td>
+<td style="text-align: left;"><code>rq5.quantized_library_change_rate</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nToMlx</code></td>
+<td style="text-align: right;">8,794</td>
+<td style="text-align: left;"><code>rq5.top_quantized_library_transitions.0.n</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nToGguf</code></td>
+<td style="text-align: right;">4,175</td>
+<td style="text-align: left;"><code>rq5.top_quantized_library_transitions.1.n</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orQuant</code></td>
+<td style="text-align: right;">14.68</td>
+<td style="text-align: left;"><code>rq4.logit_or.rel_quantized.or</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orQuantLo</code></td>
+<td style="text-align: right;">9.70</td>
+<td style="text-align: left;"><code>rq4.logit_or.rel_quantized.lo</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orQuantHi</code></td>
+<td style="text-align: right;">22.22</td>
+<td style="text-align: left;"><code>rq4.logit_or.rel_quantized.hi</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orAdapter</code></td>
+<td style="text-align: right;">7.32</td>
+<td style="text-align: left;"><code>rq4.logit_or.rel_adapter.or</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orAdapterLo</code></td>
+<td style="text-align: right;">4.49</td>
+<td style="text-align: left;"><code>rq4.logit_or.rel_adapter.lo</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orAdapterHi</code></td>
+<td style="text-align: right;">11.94</td>
+<td style="text-align: left;"><code>rq4.logit_or.rel_adapter.hi</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orMerge</code></td>
+<td style="text-align: right;">4.01</td>
+<td style="text-align: left;"><code>rq4.logit_or.rel_merge.or</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orMergeLo</code></td>
+<td style="text-align: right;">2.05</td>
+<td style="text-align: left;"><code>rq4.logit_or.rel_merge.lo</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orMergeHi</code></td>
+<td style="text-align: right;">7.82</td>
+<td style="text-align: left;"><code>rq4.logit_or.rel_merge.hi</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orGenTwo</code></td>
+<td style="text-align: right;">0.77</td>
+<td style="text-align: left;"><code>rq4.logit_or.gen2.or</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orGenTwoLo</code></td>
+<td style="text-align: right;">0.64</td>
+<td style="text-align: left;"><code>rq4.logit_or.gen2.lo</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orGenTwoHi</code></td>
+<td style="text-align: right;">0.93</td>
+<td style="text-align: left;"><code>rq4.logit_or.gen2.hi</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orGenThree</code></td>
+<td style="text-align: right;">0.52</td>
+<td style="text-align: left;"><code>rq4.logit_or.gen3p.or</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orGenThreeLo</code></td>
+<td style="text-align: right;">0.36</td>
+<td style="text-align: left;"><code>rq4.logit_or.gen3p.lo</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orGenThreeHi</code></td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: left;"><code>rq4.logit_or.gen3p.hi</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orHybrid</code></td>
+<td style="text-align: right;">2.45</td>
+<td style="text-align: left;"><code>rq4.logit_or.hybrid.or</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orHybridLo</code></td>
+<td style="text-align: right;">0.92</td>
+<td style="text-align: left;"><code>rq4.logit_or.hybrid.lo</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orHybridHi</code></td>
+<td style="text-align: right;">6.56</td>
+<td style="text-align: left;"><code>rq4.logit_or.hybrid.hi</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orAuthor</code></td>
+<td style="text-align: right;">1.34</td>
+<td style="text-align: left;"><code>rq4.logit_or.log_author.or</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orAuthorLo</code></td>
+<td style="text-align: right;">1.14</td>
+<td style="text-align: left;"><code>rq4.logit_or.log_author.lo</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orAuthorHi</code></td>
+<td style="text-align: right;">1.57</td>
+<td style="text-align: left;"><code>rq4.logit_or.log_author.hi</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orAge</code></td>
+<td style="text-align: right;">1.72</td>
+<td style="text-align: left;"><code>rq4.logit_or.log_age.or</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orAgeLo</code></td>
+<td style="text-align: right;">1.46</td>
+<td style="text-align: left;"><code>rq4.logit_or.log_age.lo</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\orAgeHi</code></td>
+<td style="text-align: right;">2.01</td>
+<td style="text-align: left;"><code>rq4.logit_or.log_age.hi</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctQwenSuper</code></td>
+<td style="text-align: right;">26.0%</td>
+<td style="text-align: left;"><code>rq1.super_family_sizes.Qwen / overview.n_connected</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctOtherSuper</code></td>
+<td style="text-align: right;">30.9%</td>
+<td style="text-align: left;"><code>rq1.super_family_sizes.Other / overview.n_connected</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctTwoParents</code></td>
+<td style="text-align: right;">58.2%</td>
+<td style="text-align: left;"><code>rq2.parents_per_hybrid.2 / rq2.n_hybrids</code></td>
+</tr>
+</tbody>
+</table></div>
+</article>
+<section class="cite" aria-label="How to cite"><h2>How to cite</h2><pre><code>@unpublished{chongmankhong2026phylogeny,
+  author = {Chongmankhong, Thanatchon},
+  title  = {Phylogenetics of Open Models: Structure, Hybridisation, Tempo and Speciation in the {Hugging Face} Lineage Graph},
+  note   = {Working draft and code repository},
+  year   = {2026},
+  url    = {https://thanatchon36.github.io/open-model-phylogeny/paper/}
+}</code></pre></section>
+<footer class="colophon">
+<p>Lineage data: Open Model Family Tree by h9-tec (CC BY 4.0), derived from the cfahlgren1/hub-stats dump of Hugging Face Hub metadata (Apache-2.0).</p><p>Rendered from <code>paper/paper.tex</code> by <code>scripts/build_web_paper.py</code>. Every number comes from <code>results/results.json</code>. The PDF is authoritative.</p>
+</footer>
+</div>
+</body>
+</html>

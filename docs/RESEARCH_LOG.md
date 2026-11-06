@@ -33,3 +33,9 @@
 - Repository assembled for Claude Code (CLAUDE.md, Makefile, scripts/get_data.sh with SHA256SUMS, requirements.txt).
 - Reproducibility check: re-running build.py and analyze.py from the raw snapshot reproduced results.json exactly (timing fields excluded).
 - Research log kept here instead of a Claude Doc tab.
+
+## Phase 9 - publication (2026-11-06)
+- Research plan (`docs/MASTER_PROMPT.md`) translated to English; the Thai original stays in git history at `3d3dd1f`.
+- All research data published on Hugging Face (`thanatchon36/open-model-phylogeny`, public, at the user's request): pinned raw snapshot, processed graph, layout, results. Raw hashes match `SHA256SUMS`. Re-running `make build layout` reproduced `results/build.json` apart from its timing field.
+- `make data` now fetches from that dataset at a fixed revision, so a fresh clone can reproduce the paper; upstream `data-latest` is rebuilt nightly.
+- Web reader added (`docs/paper/`, GitHub Pages from `main:/docs`), same format as the stablerun reader. It shows an author name, which `paper.tex` still leaves as a placeholder; pdflatex is not available locally, so the PDF was not rebuilt.

@@ -5,7 +5,7 @@ models declare (`base_model`: finetune / adapter / quantized / merge). Outputs: 
 Python pipeline, publication-quality figures, and a LaTeX paper (`paper/paper.pdf`).
 
 - Talk to the user in **Thai**. Write code, comments, commit messages and the paper in **English**.
-- Original plan (Thai): `docs/MASTER_PROMPT.md`. What was actually done and why: `docs/RESEARCH_LOG.md`.
+- Original plan: `docs/MASTER_PROMPT.md` (English translation; Thai original in git history at `3d3dd1f`). What was actually done and why: `docs/RESEARCH_LOG.md`.
 
 ## Status (snapshot 2026-11-05)
 
@@ -31,7 +31,9 @@ Not done:
 | `src/fig_more.py` | F2 coral (Qwen2.5), F5 hybridisation web, F6 statistics panel |
 | `src/make_macros.py` | `results.json` -> `paper/macros.tex`, tables, numbers ledger, `paper/figs/*.jpg` |
 | `paper/paper.tex` | Paper source (all numbers are macros) |
-| `scripts/get_data.sh` | Verify or fetch the pinned snapshot |
+| `scripts/get_data.sh` | Fetch the pinned snapshot from Hugging Face, verify it |
+| `scripts/build_web_paper.py` | `paper/paper.tex` + `paper/reader.html` -> web reader `docs/paper/` (`make web`) |
+| `scripts/make_hf_dataset.py` | Assemble the Hugging Face dataset with `docs/hf_dataset_card.md` (`make hf-dataset`) |
 
 ## Commands
 
@@ -41,6 +43,7 @@ make build     # ~20 s
 make analyze   # ~90 s
 make figures   # ~5 min; F1 at 5000 px peaks near 2.5 GB RAM (use 1600 for drafts)
 make paper     # macros + pdflatex x2
+make web       # web reader in docs/paper/; rebuild and commit it whenever the paper changes
 make all       # build analyze figures paper
 ```
 
@@ -63,6 +66,7 @@ make all       # build analyze figures paper
 
 - Source: `h9-tec/model-family-tree`, release `data-latest` (CC BY 4.0), derived from the
   `cfahlgren1/hub-stats` dump of `/api/models` (Apache-2.0). Attribute both in every output.
+- Published copy: https://huggingface.co/datasets/thanatchon36/open-model-phylogeny (`get_data.sh` pins its revision).
 - `data/raw/` and `data/processed/` are git-ignored. Checksums: `data/raw/SHA256SUMS`.
 - Creation date 2022-03-02 is a Hub backfill: treat as left-censored. Unresolved parents are ghost
   nodes. Cycle-breaking and primary-parent rules are documented in `src/build.py` and the paper.
@@ -75,7 +79,7 @@ make all       # build analyze figures paper
      closest to 2026-11-05 so tags match the lineage snapshot; otherwise use the Hub API with
      `HF_TOKEN` from the environment, backoff on HTTP 429, resumable. Save `data/raw/tags.parquet`.
    - Implement the taxonomy and obligation propagation exactly as specified in
-     `docs/MASTER_PROMPT.md` (sections "License taxonomy…" and "การตรวจสอบความถูกต้อง (audit)"):
+     `docs/MASTER_PROMPT.md` (sections "License taxonomy…" and "Validation (audit)"):
      classes P/C/R/V(f)/N/ND/U/O, topological propagation, introduced / inherited / healed,
      dataset tension, super-spreaders, exposure. Get the user's approval of the mapping table first.
    - Audit 300 stratified cases with README evidence; the user re-labels 50; report precision with
