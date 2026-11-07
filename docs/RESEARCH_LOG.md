@@ -59,3 +59,12 @@
 ## Phase 11 - first release (2026-11-07)
 - Code license set to MIT and commit author emails rewritten to the GitHub noreply address, both at the user's request. File contents were unchanged by the rewrite; `main` was force-pushed.
 - Release v0.1.0 archived on Zenodo: version DOI `10.5281/zenodo.24029160`, concept DOI `10.5281/zenodo.24029159`. The DOI was added to the documents after the release, so the v0.1.0 archive itself does not contain it.
+
+## Phase 12 - arXiv format (2026-11-07)
+- Paper moved to an arXiv-style preprint layout at the user's request, matching stablerun: single column, 11pt, running head, keywords. Text and numbers unchanged.
+- `paper/make_arxiv.sh` builds the upload bundle. It is compile-checked with Tectonic (XeTeX-based); pdfLaTeX itself is not installed here, so arXiv's own compile is the final check.
+- F6 panel (c) retitled to match the corrected text ("faster every half-year" is not monotone for every relation).
+
+## Phase 13 - LinkedIn post and poster (2026-11-07)
+- `docs/linkedin_post.md` (English, Thai and short versions, first-comment links, alt text) and `scripts/make_linkedin_poster.py` (4:5 poster from the F1 render and `results.json`, with fit checks that fail the build on overflowing text). Every number in the post was checked against the PDF text.
+- The poster cuts the disc out of the F1 render and removes the figure's own title and legend by position and colour, so F1 did not have to be re-rendered.

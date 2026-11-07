@@ -1,5 +1,5 @@
 PY ?= python3
-.PHONY: all data build analyze layout figures paper web hf-dataset clean
+.PHONY: all data build analyze layout figures paper web arxiv poster hf-dataset clean
 all: build analyze figures paper
 data:
 	bash scripts/get_data.sh
@@ -16,6 +16,10 @@ paper:
 	cd paper && pdflatex -interaction=nonstopmode paper.tex >/dev/null && pdflatex -interaction=nonstopmode paper.tex >/dev/null && echo "built paper/paper.pdf"
 web:
 	$(PY) scripts/build_web_paper.py
+arxiv:
+	bash paper/make_arxiv.sh
+poster:
+	$(PY) scripts/make_linkedin_poster.py
 hf-dataset:
 	$(PY) scripts/make_hf_dataset.py
 clean:

@@ -186,7 +186,7 @@ def esc(s):
 
 
 rows = [f"\\texttt{{\\textbackslash {n}}} & {v} & \\texttt{{{esc(s)}}} \\\\" for n, v, s in ledger]
-head = ["\\begin{longtable}{>{\\raggedright\\arraybackslash}p{0.24\\textwidth} >{\\raggedleft\\arraybackslash}p{0.16\\textwidth} p{0.52\\textwidth}}",
+head = ["\\begin{longtable}{>{\\raggedright\\arraybackslash}p{0.24\\textwidth} >{\\raggedleft\\arraybackslash}p{0.15\\textwidth} p{0.50\\textwidth}}",
         "\\toprule", "Macro & Value & Source key in \\texttt{results.json} \\\\", "\\midrule", "\\endhead"]
 (PAPER / "ledger.tex").write_text("\n".join(head + rows + ["\\bottomrule", "\\end{longtable}"]) + "\n")
 

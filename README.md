@@ -57,6 +57,8 @@ All random seeds are fixed at 42.
 | `paper` | Generated macros, tables and numbers ledger, then `pdflatex` twice | |
 | `all` | `build`, `analyze`, `figures`, `paper` | ~10 min |
 | `web` | Web reader `docs/paper/` from the LaTeX source (needs pandoc) | |
+| `arxiv` | arXiv upload bundle `paper/arxiv.tar.gz` (needs tectonic) | |
+| `poster` | LinkedIn poster `docs/assets/linkedin_poster.png` from the F1 render and `results.json` | |
 | `hf-dataset` | Assemble the Hugging Face dataset in `build/hf_dataset` | |
 | `clean` | Remove processed data and LaTeX by-products | |
 
@@ -65,7 +67,7 @@ because upstream `data-latest` is rebuilt nightly and would not reproduce the pa
 
 ## Research: *Phylogenetics of Open Models* (2026)
 
-The paper is [`paper/paper.pdf`](paper/paper.pdf) (13 pages, 6 November 2026 draft), with LaTeX source in
+The paper is [`paper/paper.pdf`](paper/paper.pdf) (19 pages, November 2026 draft, arXiv-style preprint layout), with LaTeX source in
 [`paper/paper.tex`](paper/paper.tex) and a [web version](https://thanatchon36.github.io/open-model-phylogeny/paper/) with the same text and numbers. It asks five questions of the lineage graph: how concentrated it is, who merges
 with whom, how fast new bases are reused, where attention goes, and when a derivative changes task. Every number in
 the paper is generated from `results/results.json` by `src/make_macros.py` and listed in the paper's numbers ledger.
@@ -112,7 +114,7 @@ src/
 results/          results.json, build.json and the tables behind the figures
 paper/            LaTeX source, generated macros and tables, figures, web reader template, paper.pdf
 scripts/          get_data.sh (fetch and verify the snapshot), build_web_paper.py (web reader), make_hf_dataset.py (Hugging Face data)
-docs/             web reader (docs/paper/, served by GitHub Pages), research plan, research log, dataset card, logo
+docs/             web reader (docs/paper/, served by GitHub Pages), research plan, research log, dataset card, LinkedIn post and poster, logo
 CLAUDE.md         instructions and next steps for Claude Code
 ```
 

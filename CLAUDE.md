@@ -34,6 +34,7 @@ Not done:
 | `.zenodo.json`, `CITATION.cff` | Release metadata; a GitHub Release mints a Zenodo DOI, which cannot be deleted |
 | `scripts/get_data.sh` | Fetch the pinned snapshot from Hugging Face, verify it |
 | `scripts/build_web_paper.py` | `paper/paper.tex` + `paper/reader.html` -> web reader `docs/paper/` (`make web`) |
+| `scripts/make_linkedin_poster.py` | F1 render + `results.json` -> `docs/assets/linkedin_poster.png` (`make poster`; `--font-dir` if Inter is not installed) |
 | `scripts/make_hf_dataset.py` | Assemble the Hugging Face dataset with `docs/hf_dataset_card.md` (`make hf-dataset`) |
 
 ## Commands
@@ -44,6 +45,7 @@ make build     # ~20 s
 make analyze   # ~90 s
 make figures   # ~5 min; F1 at 5000 px peaks near 2.5 GB RAM (use 1600 for drafts)
 make paper     # macros + pdflatex x2
+make arxiv     # arXiv upload bundle paper/arxiv.tar.gz (needs tectonic; git-ignored)
 make web       # web reader in docs/paper/; rebuild and commit it whenever the paper changes
 make all       # build analyze figures paper
 ```

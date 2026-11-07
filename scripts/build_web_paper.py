@@ -95,7 +95,7 @@ def simplify(tex: str) -> str:
     tex = tex.replace(r"\end{longtable}", r"\end{tabular}").replace("\\endhead\n", "")
     tex = re.sub(r"\\begin\{(figure|table)\*?\}(?:\[[^]]*\])?", r"\\begin{\1}", tex)
     tex = re.sub(r"\\end\{(figure|table)\*?\}", r"\\end{\1}", tex)
-    for pattern in (r"\\centering(?:\\small)?", r"\\onecolumn", r"^\\small$", r"\\setlength\{\\itemsep\}\{[^}]*\}"):
+    for pattern in (r"\\centering(?:\\small)?", r"\\clearpage", r"\\normalsize", r"^\\small$", r"\\setlength\{\\itemsep\}\{[^}]*\}"):
         tex = re.sub(pattern, "", tex, flags=re.MULTILINE)
     return tex
 

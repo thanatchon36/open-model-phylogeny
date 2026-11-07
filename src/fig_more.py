@@ -330,7 +330,7 @@ def stats_panel():
     ax.set_xticklabels([f"{h}\nn={ns[h]}" for h in halves], fontsize=8.2)
     ax.set_ylabel("Days to first child of each kind")
     ax.set_xlabel("Release cohort of the base model (bases with ≥100 children)")
-    ax.set_title("(c) The ecosystem reacts faster every half-year", loc="left")
+    ax.set_title("(c) Reaction times fall across release cohorts", loc="left")
     ax.legend(frameon=False, fontsize=8.8, loc="upper right")
     # (d) forest plot
     ax = axs[1, 1]
