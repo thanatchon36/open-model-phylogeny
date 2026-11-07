@@ -26,6 +26,7 @@ cleaned lineage graph, the radial layout and every result table.
 
 - **Paper (web):** https://thanatchon36.github.io/open-model-phylogeny/paper/
 - **Paper (PDF):** https://github.com/thanatchon36/open-model-phylogeny/raw/main/paper/paper.pdf
+- **Archived release:** https://doi.org/10.5281/zenodo.24029159 (Zenodo; resolves to the latest release)
 - **Code:** https://github.com/thanatchon36/open-model-phylogeny (`make data && make all` regenerates everything here
   from `data/raw`)
 
@@ -96,6 +97,7 @@ upstream MIT license, included in the archive.
   title  = {Phylogenetics of Open Models: Structure, Hybridisation, Tempo and Speciation in the {Hugging Face} Lineage Graph},
   note   = {Working draft and code repository},
   year   = {2026},
+  doi    = {10.5281/zenodo.24029159},
   url    = {https://github.com/thanatchon36/open-model-phylogeny}
 }
 ```

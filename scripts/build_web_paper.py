@@ -27,6 +27,7 @@ OUT = ROOT / "docs" / "paper"
 REPO_URL = "https://github.com/thanatchon36/open-model-phylogeny"
 PAPER_URL = "https://thanatchon36.github.io/open-model-phylogeny/paper/"
 DATA_URL = "https://huggingface.co/datasets/thanatchon36/open-model-phylogeny"
+DOI = "10.5281/zenodo.24029159"
 TITLE = "Phylogenetics of Open Models"
 SUBTITLE = "Structure, Hybridisation, Tempo and Speciation in the Hugging Face Lineage Graph"
 AUTHOR = "Thanatchon Chongmankhong"
@@ -271,6 +272,7 @@ def main() -> None:
         '<li><a href="paper.pdf">Download PDF</a></li>'
         f'<li><a href="{REPO_URL}">Code and replication</a></li>'
         f'<li><a href="{DATA_URL}">Data (Hugging Face)</a></li>'
+        f'<li><a href="https://doi.org/{DOI}">Zenodo archive</a></li>'
     )
     bib = (
         "@unpublished{chongmankhong2026phylogeny,\n"
@@ -278,6 +280,7 @@ def main() -> None:
         f"  title  = {{{TITLE}: {SUBTITLE.replace('Hugging Face', '{Hugging Face}')}}},\n"
         "  note   = {Working draft and code repository},\n"
         "  year   = {2026},\n"
+        f"  doi    = {{{DOI}}},\n"
         f"  url    = {{{PAPER_URL}}}\n"
         "}"
     )

@@ -68,6 +68,7 @@ make all       # build analyze figures paper
 - Source: `h9-tec/model-family-tree`, release `data-latest` (CC BY 4.0), derived from the
   `cfahlgren1/hub-stats` dump of `/api/models` (Apache-2.0). Attribute both in every output.
 - Published copy: https://huggingface.co/datasets/thanatchon36/open-model-phylogeny (`get_data.sh` pins its revision).
+- Archive: Zenodo concept DOI `10.5281/zenodo.24029159` (resolves to the latest release); v0.1.0 is `10.5281/zenodo.24029160`.
 - `data/raw/` and `data/processed/` are git-ignored. Checksums: `data/raw/SHA256SUMS`.
 - Creation date 2022-03-02 is a Hub backfill: treat as left-censored. Unresolved parents are ghost
   nodes. Cycle-breaking and primary-parent rules are documented in `src/build.py` and the paper.

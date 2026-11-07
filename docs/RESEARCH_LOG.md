@@ -55,3 +55,7 @@
 - `make analyze` re-run on Python 3.13 (macOS arm64): values differ only by floating-point noise, published macros unchanged apart from the 4 new ones.
 - PDF built with Tectonic, because pdflatex is not installed locally. F5 regenerated with Inter 4.1.
 - Related work to note: Laufer et al. already apply an evolutionary lens to Hub family trees and report license drift along fine-tuning edges, and Jewitt et al. study license drift from models to software. Any license-drift RQ needs to be scoped against them.
+
+## Phase 11 - first release (2026-11-07)
+- Code license set to MIT and commit author emails rewritten to the GitHub noreply address, both at the user's request. File contents were unchanged by the rewrite; `main` was force-pushed.
+- Release v0.1.0 archived on Zenodo: version DOI `10.5281/zenodo.24029160`, concept DOI `10.5281/zenodo.24029159`. The DOI was added to the documents after the release, so the v0.1.0 archive itself does not contain it.

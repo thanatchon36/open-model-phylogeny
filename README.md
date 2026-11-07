@@ -10,6 +10,7 @@ Thanatchon Chongmankhong · Working draft, November 2026</p>
 ![Snapshot](https://img.shields.io/badge/snapshot-2026--11--05-lightgrey)
 [![Paper: read online](https://img.shields.io/badge/paper-read%20online-b2182b)](https://thanatchon36.github.io/open-model-phylogeny/paper/)
 [![PDF](https://img.shields.io/badge/paper-PDF-b2182b)](https://github.com/thanatchon36/open-model-phylogeny/raw/main/paper/paper.pdf)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24029159.svg)](https://doi.org/10.5281/zenodo.24029159)
 [![Data](https://img.shields.io/badge/data-Hugging%20Face-ffcc4d)](https://huggingface.co/datasets/thanatchon36/open-model-phylogeny)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -77,6 +78,7 @@ the paper is generated from `results/results.json` by `src/make_macros.py` and l
 
 - All research data, including the raw snapshot and the processed graph: Hugging Face dataset
   [`thanatchon36/open-model-phylogeny`](https://huggingface.co/datasets/thanatchon36/open-model-phylogeny), built by `scripts/make_hf_dataset.py`
+- Archived release: [doi:10.5281/zenodo.24029159](https://doi.org/10.5281/zenodo.24029159) (Zenodo)
 - Single source of truth for all statistics: [`results/results.json`](results/results.json), with cleaning counts in
   [`results/build.json`](results/build.json)
 - Tables behind the figures: [`results/tables/`](results/tables/)
@@ -152,6 +154,7 @@ See [`CITATION.cff`](CITATION.cff). Code license: MIT. Data: CC BY 4.0, as above
   title  = {Phylogenetics of Open Models: Structure, Hybridisation, Tempo and Speciation in the {Hugging Face} Lineage Graph},
   note   = {Working draft and code repository},
   year   = {2026},
+  doi    = {10.5281/zenodo.24029159},
   url    = {https://github.com/thanatchon36/open-model-phylogeny}
 }
 ```
