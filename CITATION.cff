@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "Please cite the paper (preferred-citation); if you use the pipeline, also cite the software."
+title: "open-model-phylogeny: a phylogenetic analysis of the Hugging Face Hub"
+abstract: >-
+  Reproducible pipeline, results and figures for a phylogenetic analysis of the
+  Hugging Face Hub, built from the lineage that models declare: fine-tunes,
+  adapters, quantisations and merges.
+type: software
+authors:
+  - family-names: Chongmankhong
+    given-names: Thanatchon
+version: 0.1.0
+date-released: 2026-11-07
+license: MIT
+repository-code: "https://github.com/thanatchon36/open-model-phylogeny"
+url: "https://thanatchon36.github.io/open-model-phylogeny/paper/"
+keywords: [hugging-face, model-lineage, phylogenetics, ml-ecosystems, software-supply-chain, graph-analysis]
+preferred-citation:
+  type: unpublished
+  title: "Phylogenetics of Open Models: Structure, Hybridisation, Tempo and Speciation in the Hugging Face Lineage Graph"
+  authors:
+    - family-names: Chongmankhong
+      given-names: Thanatchon
+  year: 2026
+  notes: "Working draft, November 2026."
+  url: "https://thanatchon36.github.io/open-model-phylogeny/paper/"

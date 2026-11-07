@@ -266,7 +266,7 @@ def hybrid_web():
     hs = [plt.Rectangle((0, 0), 1, 1, color=c) for c in cols]
     bx.legend(hs, labs, loc="upper left", bbox_to_anchor=(0.0, -0.18), frameon=False, labelcolor="#C9D2E3", fontsize=10, ncol=2)
     bx.text(0, -0.95, f"Deepest merge chain: {H['hybrid_depth_max']} successive merges;\n{H['n_nodes_hybrid_depth_ge10']:,} models sit ≥10 merges deep, "
-                      f"{H['top_author_share_hybrid_depth_ge10']:.0%} of them\nfrom a single automated account.", color=MUTED, fontsize=10, va="top")
+                      f"{H['top_author_share_hybrid_depth_ge10']:.0%} of them\nquantised builds from a single account.", color=MUTED, fontsize=10, va="top")
     fig.savefig(FIG / "F5_hybridisation_web.png", facecolor=BG, bbox_inches="tight", pad_inches=0.25)
     plt.close(fig)
     print("F5 done")

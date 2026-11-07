@@ -278,6 +278,14 @@ def main():
     H["authors_hybrid_depth_ge10"] = int(nd.loc[deep, "author"].nunique())
     top_author_share = nd.loc[deep, "author"].value_counts(normalize=True)
     H["top_author_share_hybrid_depth_ge10"] = float(top_author_share.iloc[0]) if len(top_author_share) else 0.0
+    # who the deep models are: the largest account there may stack derivatives on merged lineages without merging
+    top_deep = nd["author"].values == top_author_share.index[0]
+    H["top_author_quantized_share_hybrid_depth_ge10"] = float((nd.loc[deep & top_deep, "rel"].values == 2).mean())
+    deep_multi = deep & (nd["n_par"].values >= 2)
+    deep_multi_authors = nd.loc[deep_multi, "author"].value_counts(normalize=True)
+    H["n_multi_parent_hybrid_depth_ge10"] = int(deep_multi.sum())
+    H["authors_multi_parent_hybrid_depth_ge10"] = int(len(deep_multi_authors))
+    H["top_author_share_multi_parent_hybrid_depth_ge10"] = float(deep_multi_authors.iloc[0])
     H["anc_size_max"] = int(max(len(anc(v)) for v in hyb_nodes[np.argsort(-hd[hyb_nodes])[:50]]))
     # super-family hybridisation matrix (for the hybrid web figure)
     pd.DataFrame({"a": [sup[a] for a, b in pairs], "b": [sup[b] for a, b in pairs],

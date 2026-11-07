@@ -86,8 +86,6 @@ def rewrite_group_command(tex: str, command: str, render) -> str:
 def simplify(tex: str) -> str:
     """Remove page-layout commands and reduce print-only constructs to forms pandoc reads correctly."""
     tex = re.sub(r"\\RQ(\d)", r"\\textbf{RQ\1}", tex)
-    tex = rewrite_group_command(tex, r"\todocite", lambda a: r"\textcolor{orange}{[CITE:~" + a + "]}")
-    tex = tex.replace(r"\textcolor{orange!75!black}", r"\textcolor{orange}")
     tex = re.sub(r"\\resizebox\{\\columnwidth\}\{!\}\{(\\input\{[^}]+\})\}", r"\1", tex)
     tex = re.sub(r"\{\\footnotesize\s*(\\input\{[^}]+\})\}", r"\1", tex)
     tex = re.sub(r"\\input\{([^}]+)\}", lambda m: (PAPER / f"{m.group(1)}.tex").read_text(encoding="utf-8"), tex)
@@ -218,7 +216,7 @@ def finish_html(page: str, labels: dict[str, str]) -> str:
     page = re.sub(r"<colgroup>.*?</colgroup>\s*", "", page, flags=re.DOTALL)
     # pandoc makes a block of a \\hypertarget that opens a paragraph, so reference anchors are placed here.
     page = re.sub(r"<p>REFENTRY-(.+?)-(\d+)-END\s*", r'<p id="ref-\1">[\2] ', page)
-    return page.replace('<span style="color: orange">', '<span class="todocite">')
+    return page
 
 
 def results_strip(m: dict[str, str]) -> list[tuple[str, str, str, str]]:
@@ -237,8 +235,6 @@ def results_strip(m: dict[str, str]) -> list[tuple[str, str, str, str]]:
          "led by fill-mask to text classification"),
         ("License drift", "null", "Not analysed yet",
          "the snapshot has no per-model license tags; this analysis of the original plan is pending"),
-        ("References", "null", "Citations still to be verified",
-         "related work is marked [CITE] and the method references were written from memory"),
     ]
 
 

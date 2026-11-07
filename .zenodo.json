@@ -1,0 +1,31 @@
+{
+  "title": "open-model-phylogeny: Phylogenetics of Open Models",
+  "upload_type": "software",
+  "description": "Reproducible pipeline, results and figures for a phylogenetic analysis of the Hugging Face Hub, built from the lineage that models declare (fine-tunes, adapters, quantisations and merges). Companion software to the working draft \"Phylogenetics of Open Models: Structure, Hybridisation, Tempo and Speciation in the Hugging Face Lineage Graph\". Lineage data: Open Model Family Tree by h9-tec (CC BY 4.0), derived from the cfahlgren1/hub-stats dump of Hugging Face Hub metadata (Apache-2.0).",
+  "creators": [
+    {
+      "name": "Chongmankhong, Thanatchon"
+    }
+  ],
+  "license": "mit",
+  "keywords": [
+    "Hugging Face",
+    "model lineage",
+    "phylogenetics",
+    "machine learning ecosystems",
+    "software supply chain",
+    "graph analysis"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://thanatchon36.github.io/open-model-phylogeny/paper/",
+      "relation": "isDocumentedBy",
+      "resource_type": "publication-workingpaper"
+    },
+    {
+      "identifier": "https://huggingface.co/datasets/thanatchon36/open-model-phylogeny",
+      "relation": "isSupplementedBy",
+      "resource_type": "dataset"
+    }
+  ]
+}

@@ -16,7 +16,7 @@ Done in a claude.ai sandbox (no access to huggingface.co):
 Not done:
 - **License drift** — the core question of the original plan. The snapshot has no per-model license
   tags. Current RQs were re-scoped to: structure, hybridisation, tempo, attention, speciation.
-- Interactive explorer; verified related-work citations; author names; venue template.
+- Interactive explorer; venue template.
 
 ## Repository map
 
@@ -31,6 +31,7 @@ Not done:
 | `src/fig_more.py` | F2 coral (Qwen2.5), F5 hybridisation web, F6 statistics panel |
 | `src/make_macros.py` | `results.json` -> `paper/macros.tex`, tables, numbers ledger, `paper/figs/*.jpg` |
 | `paper/paper.tex` | Paper source (all numbers are macros) |
+| `.zenodo.json`, `CITATION.cff` | Release metadata; a GitHub Release mints a Zenodo DOI, which cannot be deleted |
 | `scripts/get_data.sh` | Fetch the pinned snapshot from Hugging Face, verify it |
 | `scripts/build_web_paper.py` | `paper/paper.tex` + `paper/reader.html` -> web reader `docs/paper/` (`make web`) |
 | `scripts/make_hf_dataset.py` | Assemble the Hugging Face dataset with `docs/hf_dataset_card.md` (`make hf-dataset`) |
@@ -52,8 +53,8 @@ make all       # build analyze figures paper
 1. Never fabricate data, numbers or citations. Mock data only inside tests, clearly labelled.
 2. Every number in the paper comes from `results/results.json` through `src/make_macros.py`.
    Never type a number into `paper.tex`; add a macro (it then appears in the numbers ledger).
-3. Related work stays as `\todocite{...}` until the reference is verified against the real source.
-   The method references in the bibliography were written from memory: verify each one.
+3. Add a reference only after verifying it against the real source (Crossref, arXiv, publisher) and reading
+   enough to confirm it supports the claim. Current references were verified on 2026-11-06.
 4. Keep the pinned snapshot. Upstream `data-latest` is rebuilt nightly, so a fresh download will not
    reproduce the paper. A refresh is a new study version: re-run everything, log it, bump the date.
 5. Seeds are fixed (42). After any analysis change, re-run `make analyze` and diff `results.json`.
@@ -85,7 +86,7 @@ make all       # build analyze figures paper
    - Audit 300 stratified cases with README evidence; the user re-labels 50; report precision with
      Wilson CIs and Cohen's kappa; MIN_PRECISION = 0.8.
    - Add the results to the paper (new RQ, license chord, contagion small multiples, red overlay on F1).
-2. Paper polish: verified references for every `\todocite`, author names, venue template and page
+2. Paper polish: venue template and page
    limit (default target: MSR), AI-assistance disclosure per venue policy.
 3. Interactive explorer: sigma.js + graphology, at most ~50k nodes, coordinates from
    `data/processed/layout_radial.parquet` (spec in the master prompt).

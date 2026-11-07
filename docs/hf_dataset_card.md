@@ -30,8 +30,8 @@ cleaned lineage graph, the radial layout and every result table.
   from `data/raw`)
 
 The upstream release `data-latest` is rebuilt nightly, so this copy is the way to reproduce the paper exactly. This is
-a working draft: its references have not been verified yet, and the license-drift analysis of the original plan is not
-done, because the snapshot has no per-model license tags.
+a working draft: the license-drift analysis of the original plan is not done, because the snapshot has no per-model
+license tags.
 
 ## Files
 

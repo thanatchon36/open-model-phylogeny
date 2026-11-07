@@ -38,4 +38,20 @@
 - Research plan (`docs/MASTER_PROMPT.md`) translated to English; the Thai original stays in git history at `3d3dd1f`.
 - All research data published on Hugging Face (`thanatchon36/open-model-phylogeny`, public, at the user's request): pinned raw snapshot, processed graph, layout, results. Raw hashes match `SHA256SUMS`. Re-running `make build layout` reproduced `results/build.json` apart from its timing field.
 - `make data` now fetches from that dataset at a fixed revision, so a fresh clone can reproduce the paper; upstream `data-latest` is rebuilt nightly.
-- Web reader added (`docs/paper/`, GitHub Pages from `main:/docs`), same format as the stablerun reader. It shows an author name, which `paper.tex` still leaves as a placeholder; pdflatex is not available locally, so the PDF was not rebuilt.
+- Web reader added (`docs/paper/`, GitHub Pages from `main:/docs`), same format as the stablerun reader.
+
+## Phase 10 - paper review (2026-11-06)
+- Author set to Thanatchon Chongmankhong, name only, at the user's request. Appendix "References to find" removed.
+- All `\todocite` placeholders replaced. New references were checked against Crossref, arXiv or the source: Hugging Face docs, Jiang 2023, Stalnaker 2026, Horwitz 2025, Laufer 2025, Longpre 2024, Jewitt 2025. Abstracts were read; for Laufer, the sections on scope and related work were also read in the full text. Longpre was checked by title and bibliographic record only.
+- Method references written from memory were checked and found correct; pages were added to Seabold 2010. Csardi 2006 is confirmed by igraph's own citation file because Crossref does not index it.
+- Claims corrected because the data did not support them:
+  - "Merges overwhelmingly combine relatives" and "hybridises mostly within families": most parent pairs are outcrosses and 51.1% cross family keys.
+  - "signature of automated, evolutionary merging pipelines": every deep model of the top account is a quantisation. New keys added to `results.json`, F5 annotation changed.
+  - "increasingly automated": not measured, and deep-merge births fell in 2026.
+  - "propagation code in place": only root and depth propagation exists, not license obligations.
+  - "typically tutorial defaults": not measured; removed.
+  - "faster every half-year": not monotone for every relation.
+- Text 23.2% and robustness table 23.3%: both correct, with different family filters; the table caption now says so.
+- `make analyze` re-run on Python 3.13 (macOS arm64): values differ only by floating-point noise, published macros unchanged apart from the 4 new ones.
+- PDF built with Tectonic, because pdflatex is not installed locally. F5 regenerated with Inter 4.1.
+- Related work to note: Laufer et al. already apply an evolutionary lens to Hub family trees and report license drift along fine-tuning edges, and Jewitt et al. study license drift from models to software. Any license-drift RQ needs to be scoped against them.

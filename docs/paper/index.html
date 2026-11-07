@@ -95,7 +95,6 @@ pre code { font-weight: 400; font-size: inherit; overflow-wrap: normal; }
 .paper blockquote p:last-child { margin-bottom: 0; }
 figure { margin: 1.6em 0; display: flex; flex-direction: column; gap: 10px; }
 figure img { border-radius: 6px; border: 1px solid var(--rule); max-width: 100%; height: auto; }
-.todocite { color: var(--find); }
 .paper h4 { font-size: 1rem; margin: 1.4em 0 0.3em; }
 figcaption, caption, .tcap { font-size: 0.88rem; color: var(--ink-2); line-height: 1.45; text-align: left; }
 caption { caption-side: top; padding-bottom: 8px; }
@@ -146,8 +145,7 @@ th { font-weight: 500; color: var(--ink-2); border-bottom-color: var(--ink-2); }
 <li class="r r-ref"><span class="r-id">Tempo</span><span class="r-text">First fine-tune: 35.1 days down to 2.8 days<small>median for heavily reused bases, 2023 H2 releases against 2026 H1 releases</small></span></li>
 <li class="r r-ref"><span class="r-id">Attention</span><span class="r-text">The top 1% of derivatives receive 95.9% of their downloads<small>and the top 1% of uploaders produce 52.5% of derivatives</small></span></li>
 <li class="r r-ref"><span class="r-id">Speciation</span><span class="r-text">18.7% of parent-to-child links change task group<small>led by fill-mask to text classification</small></span></li>
-<li class="r r-null"><span class="r-id">License drift</span><span class="r-text">Not analysed yet<small>the snapshot has no per-model license tags; this analysis of the original plan is pending</small></span></li>
-<li class="r r-null"><span class="r-id">References</span><span class="r-text">Citations still to be verified<small>related work is marked [CITE] and the method references were written from memory</small></span></li></ul>
+<li class="r r-null"><span class="r-id">License drift</span><span class="r-text">Not analysed yet<small>the snapshot has no per-model license tags; this analysis of the original plan is pending</small></span></li></ul>
 </section>
 <nav class="toc" aria-label="Contents"><h2>Contents</h2>
 <ul>
@@ -162,14 +160,13 @@ th { font-weight: 500; color: var(--ink-2); border-bottom-color: var(--ink-2); }
 <li><a href="#sec:ethics" id="toc-sec:ethics"><span class="toc-section-number">9</span> Ethics, limitations and future work</a></li>
 <li><a href="#conclusion" id="toc-conclusion"><span class="toc-section-number">10</span> Conclusion</a></li>
 <li><a href="#references" id="toc-references">References</a></li>
-<li><a href="#app:A" id="toc-app:A"><span class="toc-section-number">A</span> References to find</a></li>
-<li><a href="#app:B" id="toc-app:B"><span class="toc-section-number">B</span> Numbers ledger</a></li>
+<li><a href="#app:A" id="toc-app:A"><span class="toc-section-number">A</span> Numbers ledger</a></li>
 </ul>
 </nav>
 <article class="paper">
 <h1 data-number="1" id="introduction"><span class="header-section-number">1</span> Introduction</h1>
-<p>Open-weight models are rarely used exactly as released. Soon after a base model is published, the community uploads fine-tuned variants, parameter-efficient adapters, quantised builds for consumer hardware, and merges that blend several models into one. On the Hugging Face Hub these derivatives can declare where they come from: a model card may name one or more base models and the kind of relation, and the Hub turns that metadata into a navigable model tree <span class="todocite">[CITE: Hugging Face Hub documentation of the <code>base_model</code> field]</span>. Aggregated over the whole Hub, these declarations form a genealogy of open models.</p>
-<p>This paper reads that genealogy the way a biologist reads a phylogeny. Bases are roots, derivatives are descendants, merges are hybrids with several parents, and a derivative that changes its task is a speciation event. The analogy is imperfect, since models do not compete for resources and copying is free, but it gives precise vocabulary for questions that matter to platform operators, model developers and researchers who audit the supply chain of machine-learning artefacts <span class="todocite">[CITE: studies of pre-trained model reuse and supply chains on Hugging Face]</span>. We ask five questions:</p>
+<p>Open-weight models are rarely used exactly as released. Soon after a base model is published, the community uploads fine-tuned variants, parameter-efficient adapters, quantised builds for consumer hardware, and merges that blend several models into one. On the Hugging Face Hub these derivatives can declare where they come from: a model card may name one or more base models and the kind of relation, and the Hub uses that metadata to show the base model on the model page and to find the models derived from it [<a href="#ref-hfdocs">10</a>]. Aggregated over the whole Hub, these declarations form a genealogy of open models.</p>
+<p>This paper reads that genealogy the way a biologist reads a phylogeny. Bases are roots, derivatives are descendants, merges are hybrids with several parents, and a derivative that changes its task is a speciation event. The analogy is imperfect, since models do not compete for resources and copying is free, but it gives precise vocabulary for questions that matter to platform operators, model developers and researchers who audit the supply chain of machine-learning artefacts [<a href="#ref-jiang2023">14</a>, <a href="#ref-stalnaker2026">18</a>]. We ask five questions:</p>
 <ul>
 <li><p><strong>RQ1</strong> <em>Structure</em>: how large, deep and concentrated are model families?</p></li>
 <li><p><strong>RQ2</strong> <em>Hybridisation</em>: do merges combine relatives or unrelated lineages?</p></li>
@@ -182,11 +179,11 @@ th { font-weight: 500; color: var(--ink-2); border-bottom-color: var(--ink-2); }
 <p>(C1) A reproducible pipeline that turns declared ancestry into a cleaned lineage DAG, with explicit rules for ghosts, cycles and multi-parent merges. (C2) A phylogenetic characterisation of the whole Hub. (C3) A kinship analysis of model merging against a permutation null model. (C4) Measurements of the tempo of derivative production. (C5) An analysis of task speciation. (C6) A visual atlas, led by the radial chronogram in Figure <a href="#fig:hero">1</a>.</p>
 <h1 data-number="2" id="background-and-related-work"><span class="header-section-number">2</span> Background and related work</h1>
 <h4 id="lineage-metadata.">Lineage metadata.</h4>
-<p>Model cards on the Hub carry YAML metadata. The <code>base_model</code> field lists parent repositories, and each link is labelled as <em>finetune</em>, <em>adapter</em>, <em>quantized</em> or <em>merge</em>, either by the author or by the Hub; older cards express the same information through <code>base_model:</code> tags. Declarations are voluntary, so any graph built from them is a lower bound on actual reuse.</p>
+<p>Model cards on the Hub carry YAML metadata. The <code>base_model</code> field lists parent repositories, and each link is labelled as <em>finetune</em>, <em>adapter</em>, <em>quantized</em> or <em>merge</em>, either by the author or by the Hub [<a href="#ref-hfdocs">10</a>]. The Hub also exposes these links as tags prefixed <code>base_model:</code> [<a href="#ref-laufer2025">15</a>]. Declarations are voluntary, so any graph built from them is a lower bound on actual reuse.</p>
 <h4 id="empirical-studies-of-model-ecosystems.">Empirical studies of model ecosystems.</h4>
-<p>Prior work has measured reuse, documentation and dependencies on model hubs <span class="todocite">[CITE: empirical studies of pre-trained model reuse on Hugging Face]</span>, mapped families of fine-tuned models <span class="todocite">[CITE: model atlas and family-tree studies of the Hub]</span>, and examined licensing across the machine-learning supply chain <span class="todocite">[CITE: license compliance studies of ML models and datasets]</span>. We complement these with a whole-Hub, time-resolved analysis that treats merges, timing and task change explicitly.</p>
+<p>Prior work has studied model reuse [<a href="#ref-jiang2023">14</a>] and the documentation, supply-chain relationships and licensing of models and datasets on the Hub [<a href="#ref-stalnaker2026">18</a>], and Horwitz et al. [<a href="#ref-horwitz2025">12</a>] argue for charting the world’s models as an atlas, a graph of models and the transformations that connect them. Closest to this paper, Laufer et al. [<a href="#ref-laufer2025">15</a>] study model family trees through an evolutionary lens, measuring how traits such as licenses, languages and tasks mutate along fine-tuning edges; they set aside merges, adapters and quantisations, and leave the analysis of merges as an open direction. Licensing has also been examined for training datasets [<a href="#ref-longpre2024">16</a>] and from models into downstream software [<a href="#ref-jewitt2025">13</a>]. We complement these with a whole-Hub, time-resolved analysis of every declared relation that treats merges, timing and task change explicitly.</p>
 <h4 id="methods-and-visualisation.">Methods and visualisation.</h4>
-<p>We test heavy tails following Clauset et al. [<a href="#ref-clauset2009">4</a>] with the <code>powerlaw</code> package [<a href="#ref-alstott2014">1</a>]. The radial chronogram adapts the radial tree links popularised by D3 [<a href="#ref-bostock2011">2</a>] and bundles hybrid links through common ancestors in the spirit of hierarchical edge bundling [<a href="#ref-holten2006">10</a>]; the streamgraph follows Byron and Wattenberg [<a href="#ref-byron2008">3</a>]. Layouts use igraph [<a href="#ref-csardi2006">5</a>]; statistics use statsmodels [<a href="#ref-seabold2010">11</a>] and NumPy [<a href="#ref-harris2020">8</a>].</p>
+<p>We test heavy tails following Clauset et al. [<a href="#ref-clauset2009">4</a>] with the <code>powerlaw</code> package [<a href="#ref-alstott2014">1</a>]. The radial chronogram adapts the radial tree links popularised by D3 [<a href="#ref-bostock2011">2</a>] and bundles hybrid links through common ancestors in the spirit of hierarchical edge bundling [<a href="#ref-holten2006">11</a>]; the streamgraph follows Byron and Wattenberg [<a href="#ref-byron2008">3</a>]. Layouts use igraph [<a href="#ref-csardi2006">5</a>]; statistics use statsmodels [<a href="#ref-seabold2010">17</a>] and NumPy [<a href="#ref-harris2020">8</a>].</p>
 <h1 data-number="3" id="sec:data"><span class="header-section-number">3</span> Data</h1>
 <p>We use the Open Model Family Tree [<a href="#ref-h9tec2026">9</a>], a nightly rebuild of the Hub’s declared ancestry from the public <code>hub-stats</code> dump of the <code>/api/models</code> endpoint [<a href="#ref-hubstats">7</a>]. Its <code>data-latest</code> release (snapshot of 5 November 2026; data licensed CC BY 4.0) provides a node table with one row per public model (identifier, author, creation and modification time, downloads over the last 30 days and all time, likes, pipeline tag and library) and an edge table of 952,659 child–parent links labelled by relation. Our analysis environment could not reach the Hub directly, so this third-party snapshot is our sole source (Section <a href="#sec:threats">8</a>).</p>
 <h4 id="cleaning.">Cleaning.</h4>
@@ -275,7 +272,7 @@ th { font-weight: 500; color: var(--ink-2); border-bottom-color: var(--ink-2); }
 </figure>
 <h2 data-number="6.2" id="hybridisation-rq2"><span class="header-section-number">6.2</span> Hybridisation (<strong>RQ2</strong>)</h2>
 <p>15,208 models declare two or more parents, including 98.5% of those labelled as merges. Most hybrids have two parents (58.2%), but one lists 100. Across 114,989 parent pairs, 11.9% are backcrosses, 10.8% siblings and 16.3% cousins, while 61.0% share no declared ancestor (95% CI 53.0%–75.3%). Under random re-pairing only 2.1% of pairs are related, so merges join relatives 18.4 times more often than chance (permutation <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>≤</mo><mn>0.01</mn></mrow><annotation encoding="application/x-tex">p\le0.01</annotation></semantics></math>; Figure <a href="#fig:hybrid">3</a>). Family keys tell the same story: 51.1% of observed pairs cross family keys, against 95.0% under the null, and 31.1% cross super-families.</p>
-<p>Merging also builds the deepest lineages. One chain reaches 142 successive merges. Of the 4,787 models that sit at least ten merges deep, 38.4% come from a single account (258 accounts in total), the signature of automated, evolutionary merging pipelines. The largest ancestor set of a merged model contains 522 models.</p>
+<p>Merging also builds the deepest lineages. One chain reaches 142 successive merges. Of the 4,787 models that sit at least ten merges deep, 38.4% come from a single account (258 accounts in total), and 100.0% of its models at that depth are quantisations rather than merges. The 1,961 multi-parent models at that depth come from 107 accounts, and the largest of these contributes 25.3%. The largest ancestor set of a merged model contains 522 models.</p>
 <figure>
 <img loading="lazy" alt="Model merging is assortative. Left: the families most involved in merges; curves join the families of two parents of the same merged model, bundled through their super-family hubs. Right: kinship of the 114,989 parent pairs compared with 100 random re-pairings." src="figures/f5.jpg" />
 <figcaption><span id="fig:hybrid"><strong>Figure 3.</strong></span> <strong>Model merging is assortative.</strong> Left: the families most involved in merges; curves join the families of two parents of the same merged model, bundled through their super-family hubs. Right: kinship of the 114,989 parent pairs compared with 100 random re-pairings.</figcaption>
@@ -362,7 +359,7 @@ th { font-weight: 500; color: var(--ink-2); border-bottom-color: var(--ink-2); }
 <h2 data-number="6.4" id="attention-rq4"><span class="header-section-number">6.4</span> Attention (<strong>RQ4</strong>)</h2>
 <p>Downloads are even more concentrated than reproduction. Derivatives have accumulated 17.0 billion downloads, 95.9% of them by the top 1% of derivatives (Gini 0.993). Median all-time downloads are 938 for quantisations, 152 for merges, 53 for fine-tunes and 22 for adapters. 12.4% of derivatives had no download in the last 30 days (95% CI 9.6%–15.6%) and 11.4% were never downloaded. Dormancy reaches 25.2% among fine-tunes, against 4.6% for adapters, 2.7% for quantisations and 5.2% for merges.</p>
 <p>The regression (n = 919,164, pseudo-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>R</mi><mn>2</mn></msup><annotation encoding="application/x-tex">R^2</annotation></semantics></math> = 0.226; Figure <a href="#fig:stats">5</a>d) confirms the ranking. Relative to fine-tunes, the odds of being active are 14.68 times higher for quantisations (95% CI 9.70–22.22), 7.32 for adapters and 4.01 for merges. They fall with generation (0.77 for generation two, 0.52 for three or more) and rise with uploader size (1.34 per tenfold) and age (1.72 per tenfold); having several parents has no clear effect (2.45, CI 0.92–6.56).</p>
-<p>Within the 1,107 families with at least 50 descendants, descendants collect a median 23.5% of the family’s downloads, and in 25.0% of families at least one child out-downloads its root. Reproduction and use are related but not aligned: the rank correlation between a parent’s number of children and its downloads is 0.47 among 6,139 parents with at least ten children, and 11.7% of the 894 bases with at least 100 children owe 90% or more of them to adapters, typically tutorial defaults rather than widely used models.</p>
+<p>Within the 1,107 families with at least 50 descendants, descendants collect a median 23.5% of the family’s downloads, and in 25.0% of families at least one child out-downloads its root. Reproduction and use are related but not aligned: the rank correlation between a parent’s number of children and its downloads is 0.47 among 6,139 parents with at least ten children, and 11.7% of the 894 bases with at least 100 children owe 90% or more of them to adapters.</p>
 <figure>
 <img loading="lazy" alt="Statistics. (a) Complementary CDF of family sizes with the fitted power law. (b) Cumulative distribution of the parent-to-child lag by relation. (c) Median reaction time by release cohort with interquartile ranges. (d) Odds ratios of being downloaded in the last 30 days (super-family indicators omitted from the plot)." src="figures/f6.jpg" />
 <figcaption><span id="fig:stats"><strong>Figure 5.</strong></span> <strong>Statistics.</strong> (a) Complementary CDF of family sizes with the fitted power law. (b) Cumulative distribution of the parent-to-child lag by relation. (c) Median reaction time by release cohort with interquartile ranges. (d) Odds ratios of being downloaded in the last 30 days (super-family indicators omitted from the plot).</figcaption>
@@ -374,8 +371,8 @@ th { font-weight: 500; color: var(--ink-2); border-bottom-color: var(--ink-2); }
 <figcaption><span id="fig:chord"><strong>Figure 6.</strong></span> <strong>Speciation.</strong> Task changes along parent–child edges; ribbons leave the parent’s task and land on the child’s, with width proportional to the number of edges.</figcaption>
 </figure>
 <h2 data-number="6.6" id="robustness"><span class="header-section-number">6.6</span> Robustness</h2>
-<p>Table <a href="#tab:robust">3</a> repeats five headline metrics under four alternative specifications. Concentration, speciation and dormancy keep their magnitude and direction in every case, and the conclusions above do not depend on the primary-parent rule.</p>
-<div class="tbl"><p class="tcap"><span id="tab:robust"><strong>Table 3.</strong></span> Headline metrics under alternative specifications: Gini and top-10 share of family sizes, speciation rate, median fine-tune lag (days) and dormant share.</p><div class="tscroll"><table>
+<p>Table <a href="#tab:robust">3</a> repeats five headline metrics under four alternative specifications. Concentration, speciation and dormancy stay of the same order in every case, and the first-listed parent rule leaves them almost unchanged.</p>
+<div class="tbl"><p class="tcap"><span id="tab:robust"><strong>Table 3.</strong></span> Headline metrics under alternative specifications: Gini and top-10 share of family sizes, speciation rate, median fine-tune lag (days) and dormant share. Family metrics here count families of at least two models, so the top-10 share differs slightly from the value in the text.</p><div class="tscroll"><table>
 <thead>
 <tr>
 <th style="text-align: left;">Specification</th>
@@ -433,28 +430,28 @@ th { font-weight: 500; color: var(--ink-2); border-bottom-color: var(--ink-2); }
 <h4 id="a-few-bases-carry-the-ecosystem.">A few bases carry the ecosystem.</h4>
 <p>With 74.8% of all connected models below the top 1% of roots, an evaluation, audit or safety fix applied to a handful of bases reaches most of the Hub’s derivatives, and a defect in one of them propagates just as far. Lineage metadata is what makes such propagation traceable.</p>
 <h4 id="derivatives-arrive-in-days.">Derivatives arrive in days.</h4>
-<p>Fine-tunes and quantisations of a major release now appear within days, faster every half-year. Release processes, evaluations and responsible-use guidance should assume that derivatives exist almost immediately; quantisers have become distribution infrastructure, and their builds are the most used derivatives of all.</p>
-<h4 id="merging-is-in-breeding-and-increasingly-automated.">Merging is in-breeding and increasingly automated.</h4>
-<p>Merges overwhelmingly combine relatives, and automated pipelines produce chains up to 142 merges deep. Such chains make provenance hard to reason about without tooling, and they are where license and safety obligations are most likely to be lost.</p>
+<p>Fine-tunes and quantisations of a major release now appear within days, and reaction times have fallen across release cohorts. Release processes, evaluations and responsible-use guidance should assume that derivatives exist almost immediately; quantisers act as distribution infrastructure, and their builds have the highest median downloads of any relation.</p>
+<h4 id="merging-favours-relatives-and-its-deepest-chains-are-concentrated.">Merging favours relatives, and its deepest chains are concentrated.</h4>
+<p>Merges join relatives far more often than chance, although most parent pairs (61.0%) still share no declared ancestor. Chains reach 142 merges deep, and most of the deepest multi-parent models come from a small number of accounts. Such chains make provenance hard to reason about without tooling, and license and safety obligations may be easier to lose along them.</p>
 <h4 id="speciation-follows-architecture.">Speciation follows architecture.</h4>
-<p>Encoders are starting points that are almost always re-purposed, while generative models are mostly specialised within their task. Vision–language bases routinely give rise to text-only descendants.</p>
+<p>Fill-mask encoders are starting points that are almost always re-purposed, while generative models are mostly specialised within their task. Vision–language bases routinely give rise to text-only descendants.</p>
 <h4 id="implications-for-platforms.">Implications for platforms.</h4>
 <p>Platforms could validate declarations at upload (cycles, children older than their parents), surface ghost parents, rank search results with lineage-aware signals, and propagate notices such as deprecations or vulnerability reports down a lineage.</p>
 <h1 data-number="8" id="sec:threats"><span class="header-section-number">8</span> Threats to validity</h1>
 <h4 id="construct.">Construct.</h4>
 <p>We observe declared ancestry only: 28.6% of models declare a parent, so all counts are lower bounds, and relation labels may be inferred or wrong. Family keys rely on a naming heuristic. Download counts follow the Hub’s counting conventions and include automated traffic.</p>
 <h4 id="internal.">Internal.</h4>
-<p>Creation time is not release time, pre-2022 dates are backfilled, and 0.4% of lags are negative. The acceleration of reaction times could partly reflect the adoption of declarations; restricting the test to bases released from 2024 onwards preserves the trend.</p>
+<p>Creation time is not release time, the earliest dates are backfilled, and 0.4% of lags are negative. The acceleration of reaction times could partly reflect the adoption of declarations; restricting the test to bases released from 2024 onwards preserves the trend.</p>
 <h4 id="external.">External.</h4>
 <p>We study one platform at one point in time through a third-party rebuild of its metadata; our reconstruction applies its own cleaning rules and may differ slightly from the upstream summaries.</p>
 <h1 data-number="9" id="sec:ethics"><span class="header-section-number">9</span> Ethics, limitations and future work</h1>
-<p>We use public metadata only, report individual accounts anonymously, and make no judgement about the legality of any model. The main limitation is the missing license metadata, which prevented the license-drift analysis of our original design. That analysis would map each declared license to a class (permissive, copyleft, use-restricted, vendor-specific, non-commercial, no-derivatives) whose obligations flow down the lineage; a derivative is inconsistent when its declared license drops an inherited obligation, and inconsistencies can be split into those introduced at an edge and those inherited from an inconsistent parent. The lineage graph, primary tree and propagation code are in place; only per-model license tags, available from the Hub’s model metadata, are needed.</p>
+<p>We use public metadata only, report individual accounts anonymously, and make no judgement about the legality of any model. The main limitation is the missing license metadata, which prevented the license-drift analysis of our original design. That analysis would map each declared license to a class (permissive, copyleft, use-restricted, vendor-specific, non-commercial, no-derivatives) whose obligations flow down the lineage; a derivative is inconsistent when its declared license drops an inherited obligation, and inconsistencies can be split into those introduced at an edge and those inherited from an inconsistent parent. This would extend the license drift reported by Laufer et al. [<a href="#ref-laufer2025">15</a>] and Jewitt et al. [<a href="#ref-jewitt2025">13</a>] to every relation and to inherited obligations. The lineage graph, primary tree and topological order are in place; what remains is to collect per-model license tags from the Hub’s metadata and implement the obligation propagation.</p>
 <h1 data-number="10" id="conclusion"><span class="header-section-number">10</span> Conclusion</h1>
-<p>The Hugging Face Hub has grown a family tree of 965,292 connected models. It is dominated by a few giant lineages, reproduces fastest through quantisation, hybridises mostly within families, and speciates mainly where encoders become task models. Reading the Hub as a phylogeny turns scattered metadata into a map of how open models actually spread.</p>
+<p>The Hugging Face Hub has grown a family tree of 965,292 connected models. It is dominated by a few giant lineages, reproduces fastest through quantisation, hybridises with relatives far more often than chance, and speciates mainly where encoders become task models. Reading the Hub as a phylogeny turns scattered metadata into a map of how open models actually spread.</p>
 <h4 id="data-and-code-availability.">Data and code availability.</h4>
-<p>The analysis pipeline, derived tables and figure scripts accompany this draft. The lineage data are from the Open Model Family Tree [<a href="#ref-h9tec2026">9</a>] under CC BY 4.0, derived from Hub metadata via <code>hub-stats</code> [<a href="#ref-hubstats">7</a>].</p>
+<p>The analysis pipeline, derived tables and figure scripts are at <a href="https://github.com/thanatchon36/open-model-phylogeny" class="uri">https://github.com/thanatchon36/open-model-phylogeny</a>. All research data, including the pinned raw snapshot, are at <a href="https://huggingface.co/datasets/thanatchon36/open-model-phylogeny" class="uri">https://huggingface.co/datasets/thanatchon36/open-model-phylogeny</a>. The lineage data are from the Open Model Family Tree [<a href="#ref-h9tec2026">9</a>] under CC BY 4.0, derived from Hub metadata via <code>hub-stats</code> [<a href="#ref-hubstats">7</a>].</p>
 <h4 id="acknowledgements.">Acknowledgements.</h4>
-<p>The data pipeline, figures and first draft of this paper were produced with the assistance of Claude (Anthropic), an AI system, under the direction of the author(s), who are responsible for verifying all content.</p>
+<p>The data pipeline, figures and first draft of this paper were produced with the assistance of Claude (Anthropic), an AI system, under the direction of the author, who is responsible for verifying all content.</p>
 <h1 class="unnumbered" id="references">References</h1>
 <p id="ref-alstott2014">[1] J. Alstott, E. Bullmore and D. Plenz. powerlaw: a Python package for analysis of heavy-tailed distributions. <em>PLoS ONE</em>, 9(1):e85777, 2014.</p>
 <p id="ref-bostock2011">[2] M. Bostock, V. Ogievetsky and J. Heer. D<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi></mi><mn>3</mn></msup><annotation encoding="application/x-tex">^3</annotation></semantics></math>: Data-driven documents. <em>IEEE Transactions on Visualization and Computer Graphics</em>, 17(12):2301–2309, 2011.</p>
@@ -465,11 +462,16 @@ th { font-weight: 500; color: var(--ink-2); border-bottom-color: var(--ink-2); }
 <p id="ref-hubstats">[7] cfahlgren1. <code>hub-stats</code>: daily dumps of Hugging Face Hub metadata. Dataset <code>cfahlgren1/hub-stats</code> on the Hugging Face Hub (Apache-2.0), as referenced by [<a href="#ref-h9tec2026">9</a>].</p>
 <p id="ref-harris2020">[8] C. R. Harris et al. Array programming with NumPy. <em>Nature</em>, 585:357–362, 2020.</p>
 <p id="ref-h9tec2026">[9] h9-tec. Open Model Family Tree. GitHub repository <a href="https://github.com/h9-tec/model-family-tree" class="uri">https://github.com/h9-tec/model-family-tree</a>, release <code>data-latest</code> (snapshot 2026-11-05, accessed 6 November 2026). Data CC BY 4.0.</p>
-<p id="ref-holten2006">[10] D. Holten. Hierarchical edge bundles: visualization of adjacency relations in hierarchical data. <em>IEEE Transactions on Visualization and Computer Graphics</em>, 12(5):741–748, 2006.</p>
-<p id="ref-seabold2010">[11] S. Seabold and J. Perktold. statsmodels: Econometric and statistical modeling with Python. In <em>Proceedings of the 9th Python in Science Conference</em>, 2010.</p>
-<h1 data-number="11" id="app:A"><span class="header-section-number">A</span> References to find</h1>
-<p>Bracketed <span class="todocite">[CITE]</span> markers are placeholders for related work that must be located and verified before submission. Suggested searches: Hugging Face Hub documentation on <code>base_model</code> and model trees; empirical studies of pre-trained model reuse, documentation and supply chains on Hugging Face; “model atlas” and family-tree analyses of the Hub; license compliance and license inconsistency in machine-learning models and datasets.</p>
-<h1 data-number="12" id="app:B"><span class="header-section-number">B</span> Numbers ledger</h1>
+<p id="ref-hfdocs">[10] Hugging Face. Model cards. Hugging Face Hub documentation, <a href="https://huggingface.co/docs/hub/model-cards" class="uri">https://huggingface.co/docs/hub/model-cards</a> (accessed 6 November 2026).</p>
+<p id="ref-holten2006">[11] D. Holten. Hierarchical edge bundles: visualization of adjacency relations in hierarchical data. <em>IEEE Transactions on Visualization and Computer Graphics</em>, 12(5):741–748, 2006.</p>
+<p id="ref-horwitz2025">[12] E. Horwitz, N. Kurer, J. Kahana, L. Amar and Y. Hoshen. We should chart an atlas of all the world’s models. In <em>Advances in Neural Information Processing Systems 38</em>, pages 162852–162873, 2025.</p>
+<p id="ref-jewitt2025">[13] J. Jewitt, H. Li, B. Adams, G. K. Rajbahadur and A. E. Hassan. From Hugging Face to GitHub: tracing license drift in the open-source AI ecosystem. arXiv:2509.09873, 2025.</p>
+<p id="ref-jiang2023">[14] W. Jiang, N. Synovic, M. Hyatt, T. R. Schorlemmer, R. Sethi, Y.-H. Lu, G. K. Thiruvathukal and J. C. Davis. An empirical study of pre-trained model reuse in the Hugging Face deep learning model registry. In <em>Proceedings of the 45th International Conference on Software Engineering (ICSE)</em>, pages 2463–2475, 2023.</p>
+<p id="ref-laufer2025">[15] B. Laufer, H. Oderinwale and J. Kleinberg. Anatomy of a machine learning ecosystem: 2 million models on Hugging Face. arXiv:2508.06811, 2025.</p>
+<p id="ref-longpre2024">[16] S. Longpre et al. A large-scale audit of dataset licensing and attribution in AI. <em>Nature Machine Intelligence</em>, 6(8):975–987, 2024.</p>
+<p id="ref-seabold2010">[17] S. Seabold and J. Perktold. statsmodels: Econometric and statistical modeling with Python. In <em>Proceedings of the 9th Python in Science Conference</em>, pages 92–96, 2010.</p>
+<p id="ref-stalnaker2026">[18] T. Stalnaker, N. Wintersgill, O. Chaparro, L. A. Heymann, M. Di Penta, D. M. German and D. Poshyvanyk. An empirical analysis of machine learning model and dataset documentation, supply chain, and licensing challenges on Hugging Face. <em>ACM Transactions on Software Engineering and Methodology</em>, pages 1–49, 2026.</p>
+<h1 data-number="11" id="app:A"><span class="header-section-number">A</span> Numbers ledger</h1>
 <p>Every number in the text is a macro generated from <code>results/results.json</code> by <code>src/make_macros.py</code>; Tables <a href="#tab:gen">1</a>–<a href="#tab:robust">3</a> are generated from the same file.</p>
 <div class="tscroll"><table>
 <thead>
@@ -884,6 +886,26 @@ th { font-weight: 500; color: var(--ink-2); border-bottom-color: var(--ink-2); }
 <td style="text-align: left;"><code>\pctDeepTopAuthor</code></td>
 <td style="text-align: right;">38.4%</td>
 <td style="text-align: left;"><code>rq2.top_author_share_hybrid_depth_ge10</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctDeepTopAuthorQuant</code></td>
+<td style="text-align: right;">100.0%</td>
+<td style="text-align: left;"><code>rq2.top_author_quantized_share_hybrid_depth_ge10</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nDeepMulti</code></td>
+<td style="text-align: right;">1,961</td>
+<td style="text-align: left;"><code>rq2.n_multi_parent_hybrid_depth_ge10</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\nDeepMultiAuthors</code></td>
+<td style="text-align: right;">107</td>
+<td style="text-align: left;"><code>rq2.authors_multi_parent_hybrid_depth_ge10</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\pctDeepMultiTopAuthor</code></td>
+<td style="text-align: right;">25.3%</td>
+<td style="text-align: left;"><code>rq2.top_author_share_multi_parent_hybrid_depth_ge10</code></td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>\ancMax</code></td>

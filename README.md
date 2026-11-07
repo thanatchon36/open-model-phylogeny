@@ -11,7 +11,7 @@ Thanatchon Chongmankhong · Working draft, November 2026</p>
 [![Paper: read online](https://img.shields.io/badge/paper-read%20online-b2182b)](https://thanatchon36.github.io/open-model-phylogeny/paper/)
 [![PDF](https://img.shields.io/badge/paper-PDF-b2182b)](https://github.com/thanatchon36/open-model-phylogeny/raw/main/paper/paper.pdf)
 [![Data](https://img.shields.io/badge/data-Hugging%20Face-ffcc4d)](https://huggingface.co/datasets/thanatchon36/open-model-phylogeny)
-![Code license](https://img.shields.io/badge/code%20license-not%20yet%20chosen-lightgrey)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 📖 **[Read the paper online](https://thanatchon36.github.io/open-model-phylogeny/paper/)** ·
 ⬇️ **[Download the PDF](https://github.com/thanatchon36/open-model-phylogeny/raw/main/paper/paper.pdf)** ·
@@ -64,7 +64,7 @@ because upstream `data-latest` is rebuilt nightly and would not reproduce the pa
 
 ## Research: *Phylogenetics of Open Models* (2026)
 
-The paper is [`paper/paper.pdf`](paper/paper.pdf) (12 pages, 6 November 2026 draft), with LaTeX source in
+The paper is [`paper/paper.pdf`](paper/paper.pdf) (13 pages, 6 November 2026 draft), with LaTeX source in
 [`paper/paper.tex`](paper/paper.tex) and a [web version](https://thanatchon36.github.io/open-model-phylogeny/paper/) with the same text and numbers. It asks five questions of the lineage graph: how concentrated it is, who merges
 with whom, how fast new bases are reused, where attention goes, and when a derivative changes task. Every number in
 the paper is generated from `results/results.json` by `src/make_macros.py` and listed in the paper's numbers ledger.
@@ -117,8 +117,8 @@ CLAUDE.md         instructions and next steps for Claude Code
 ## Honesty and limitations
 
 This is a working draft. The pipeline, figures and first draft of the paper were produced with the assistance of
-Claude (Anthropic), and the author is responsible for verifying them. Related work is still marked as references to
-find, and the method references were written from memory and **have not been verified yet**.
+Claude (Anthropic), and the author is responsible for verifying them. Every reference was checked on 2026-11-06 against
+Crossref, arXiv or the publisher's own source; two are still arXiv preprints.
 
 The license-drift analysis of the original plan is not done, because the snapshot has no per-model license tags.
 The graph covers declared ancestry only, so all counts are lower bounds, and relation labels may be inferred or wrong.
@@ -132,7 +132,7 @@ lognormal is inconclusive. The study uses public metadata only and covers one pl
 
 1. License drift: collect per-model license tags, propagate obligations down the lineage, and audit a stratified
    sample by hand.
-2. Paper polish: verified references, author details, venue template.
+2. Paper polish: venue template and page limit.
 3. Interactive explorer of the graph.
 
 ## Data and attribution
@@ -144,7 +144,7 @@ Hugging Face Hub metadata (Apache-2.0). Our copy and the derived files are in th
 
 ## Citation
 
-Code license: not yet chosen, so no reuse rights are granted for now.
+See [`CITATION.cff`](CITATION.cff). Code license: MIT. Data: CC BY 4.0, as above.
 
 ```bibtex
 @unpublished{chongmankhong2026phylogeny,
