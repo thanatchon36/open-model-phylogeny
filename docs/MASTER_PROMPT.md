@@ -1,6 +1,6 @@
 # Master Prompt: Researching the Lineage of AI Models on Hugging Face
 
-> English translation of the Thai original, which remains in git history (commit `3d3dd1f`).
+> English translation of the Thai original, which remains in git history (commit `c56d6b7`).
 > Exported from a Claude Doc (rev 19, 2026-11-06) for reference in Claude Code.
 > - The 9-phase diagram in the source document was converted to a list.
 > - For where the actual work differs from this plan, see `docs/RESEARCH_LOG.md` (especially license drift, which has not been done).

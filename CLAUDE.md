@@ -5,7 +5,7 @@ models declare (`base_model`: finetune / adapter / quantized / merge). Outputs: 
 Python pipeline, publication-quality figures, and a LaTeX paper (`paper/paper.pdf`).
 
 - Talk to the user in **Thai**. Write code, comments, commit messages and the paper in **English**.
-- Original plan: `docs/MASTER_PROMPT.md` (English translation; Thai original in git history at `3d3dd1f`). What was actually done and why: `docs/RESEARCH_LOG.md`.
+- Original plan: `docs/MASTER_PROMPT.md` (English translation; Thai original in git history at `c56d6b7`). What was actually done and why: `docs/RESEARCH_LOG.md`.
 
 ## Status (snapshot 2026-11-05)
 
